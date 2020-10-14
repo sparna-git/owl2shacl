@@ -93,7 +93,7 @@ closed-owl2sh:ClassShape
 
   # Close NodeShapes and Ignore properties from subclasses
   sh:rule closed-owl2sh:closeNodeShapes ;
-  sh:rule closed-owl2sh:closed-owl2sh:addIgnorePropertiesFromSubclasses ;
+  sh:rule closed-owl2sh:addIgnorePropertiesFromSubclasses ;
   
 
   sh:target [
