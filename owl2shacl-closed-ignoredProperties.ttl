@@ -876,10 +876,9 @@ closed-owl2sh:addIgnorePropertiesFromSubclasses
         $this sh:ignoredProperties (rdf:type ?property)
       }
       WHERE {
-          $this a sh:NodeShape .
-          ?descendant rdfs:subClassOf+ $this .
-          ?descendant sh:property/sh:path ?property .
-        }
+            $this a sh:NodeShape .
+            ?descendant rdfs:subClassOf+ $this .
+            ?descendant sh:property/sh:path ?property .
       }
       """ ;
   sh:order 10 ;
