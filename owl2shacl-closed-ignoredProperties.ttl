@@ -10,7 +10,7 @@
   rdf:type owl:Ontology ;
   sh:declare [
       rdf:type sh:PrefixDeclaration ;
-      sh:namespace "http://sparna.fr/ontologies/closed-owl2sh#"^^xsd:anyURI ;
+      sh:namespace "http://data.sparna.fr/ontologies/closed-owl2sh#"^^xsd:anyURI ;
       sh:prefix "closed-owl2sh" ;
     ] ;
   sh:declare [
