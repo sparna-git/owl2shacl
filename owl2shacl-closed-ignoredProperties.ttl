@@ -873,12 +873,19 @@ closed-owl2sh:addIgnorePropertiesFromSubclasses
   rdfs:label "Add sh:ignoredProperties with properties from subClasses" ;
   sh:construct """
       CONSTRUCT {
-        $this sh:ignoredProperties (rdf:type ?property)
+        $this sh:ignoredProperties ?property .
       }
       WHERE {
+          {
             $this a sh:NodeShape .
             ?descendant rdfs:subClassOf+ $this .
             ?descendant sh:property/sh:path ?property .
+          }
+          UNION
+          {
+            $this a sh:NodeShape .
+            BIND(rdf:type AS ?property)
+          }
       }
       """ ;
   sh:order 10 ;
