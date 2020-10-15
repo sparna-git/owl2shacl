@@ -332,7 +332,7 @@ closed-owl2sh:owlMaxCardinality2shMaxCount
   sh:construct """
       CONSTRUCT {
         ?propertyShape sh:maxCount ?maxCount .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         $this rdfs:subClassOf ?restriction .
@@ -360,7 +360,7 @@ closed-owl2sh:owlMaxQualifiedCardinalityOnClass2shMaxCount
 
       CONSTRUCT {
         ?propertyShape sh:maxCount ?maxCount .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -392,7 +392,7 @@ closed-owl2sh:owlMaxQualifiedCardinalityOnClass2shQualifiedMaxCount
         ?propertyShape sh:qualifiedMaxCount ?maxCount .
         ?propertyShape sh:qualifiedValueShape ?valueShape .
         ?valueShape sh:class ?onClass .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -424,7 +424,7 @@ closed-owl2sh:owlMaxQualifiedCardinalityOnDataRange2shQualifiedMaxCount
         ?propertyShape sh:qualifiedMaxCount ?maxCount .
         ?propertyShape sh:qualifiedValueShape ?valueShape .
         ?valueShape sh:datatype ?onDataRange .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -452,7 +452,7 @@ closed-owl2sh:owlMinCardinality2shMinCount
   sh:construct """
       CONSTRUCT {
         ?propertyShape sh:minCount ?maxCount .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -476,7 +476,7 @@ closed-owl2sh:owlMinQualifiedCardinalityOnClass2shMinCount
   sh:construct """
       CONSTRUCT {
         ?propertyShape sh:minCount ?minCount .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -507,7 +507,7 @@ closed-owl2sh:owlMinQualifiedCardinalityOnClass2shQualifiedMinCount
         ?propertyShape sh:qualifiedMinCount ?minCount .
         ?propertyShape sh:qualifiedValueShape ?valueShape .
         ?valueShape sh:class ?onClass .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -539,7 +539,7 @@ closed-owl2sh:owlMinQualifiedCardinalityOnDataRange2shQualifiedMinCount
         ?propertyShape sh:qualifiedMinCount ?minCount .
         ?propertyShape sh:qualifiedValueShape ?valueShape .
         ?valueShape sh:datatype ?onDataRange .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -568,7 +568,7 @@ closed-owl2sh:owlQualifiedCardinalityOnClass2shMinMaxCount
       CONSTRUCT {
         ?propertyShape sh:maxCount ?count .
         ?propertyShape sh:minCount ?count .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -600,7 +600,7 @@ closed-owl2sh:owlQualifiedCardinalityOnClass2shQualifiedMinMaxCount
         ?propertyShape sh:qualifiedMinCount ?count .
         ?propertyShape sh:qualifiedValueShape ?valueShape .
         ?valueShape sh:class ?onClass .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -633,7 +633,7 @@ closed-owl2sh:owlQualifiedCardinalityOnDataRange2shQualifiedMinMaxCount
         ?propertyShape sh:qualifiedMinCount ?count .
         ?propertyShape sh:qualifiedValueShape ?valueShape .
         ?valueShape sh:datatype ?onDataRange .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -663,7 +663,7 @@ closed-owl2sh:owlHasValue2shHasValue
   sh:construct """
       CONSTRUCT {
         ?propertyShape sh:hasValue ?hasValue .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -687,7 +687,7 @@ closed-owl2sh:owlSomeValuesFrom2shMinCount1
   sh:construct """
       CONSTRUCT {
         ?propertyShape sh:minCount 1 .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         $this rdfs:subClassOf ?restriction .
@@ -737,7 +737,7 @@ ex:ConstitutionalOwner
         ?firstNode rdf:rest ?secondNode .
         ?secondNode rdf:first ?allValuesFromProperty .
         ?secondNode rdf:rest rdf:nil .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -770,7 +770,7 @@ closed-owl2sh:owlUnionOfIRIs2rdfsSubClassOf
   sh:construct """
       CONSTRUCT {
         $this rdfs:subClassOf ?class .
-        ?union closed-owl2sh:mappedTo $this .
+        # ?union closed-owl2sh:mappedTo $this .
       }
       WHERE {
         {
@@ -796,7 +796,7 @@ closed-owl2sh:owlSomeValuesFromIRI2dashHasValueWithClass
   sh:construct """
       CONSTRUCT {
         ?propertyShape dash:hasValueWithClass ?someValuesFrom .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -823,7 +823,7 @@ closed-owl2sh:owlAllValuesFrom2shClassOrDatatype
   sh:construct """
       CONSTRUCT {
         ?propertyShape ?parameter ?allValuesFrom .
-        ?restriction closed-owl2sh:mappedTo ?propertyShape .
+        # ?restriction closed-owl2sh:mappedTo ?propertyShape .
       }
       WHERE {
         {
@@ -900,11 +900,11 @@ WHERE {
 .
 
 
-closed-owl2sh:mappedTo
-  rdf:type rdf:Property ;
-  rdfs:comment "Associates an OWL/RDFS subject with one or more SHACL subjects that have been produced by the mapping rules. Statements that have been mapped to others can in principle be deleted. This is currently only used to flag blank nodes that appear in rdfs:subClassOf triples." ;
-  rdfs:label "mapped to" ;
-.
+# closed-owl2sh:mappedTo
+#   rdf:type rdf:Property ;
+#  rdfs:comment "Associates an OWL/RDFS subject with one or more SHACL subjects that have been produced by the mapping rules. Statements that have been mapped to others can in principle be deleted. This is currently only used to flag blank nodes that appear in rdfs:subClassOf triples." ;
+#   rdfs:label "mapped to" ;
+# .
 
 
 closed-owl2sh:getPropertyShape
