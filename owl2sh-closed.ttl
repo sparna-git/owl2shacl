@@ -295,9 +295,10 @@ owl2sh-closed:rdfsRange2shClassOrDatatype
 				FILTER isIRI(?range) .
         # exclude the case where range is rdfs:Literal, this will be handled with an sh:kind
         FILTER(?range != rdfs:Literal) .
+        # exclude the case where range is owl:Thing
 				BIND (
           IF(
-            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration)),
+            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration, xsd:anyURI)),
             sh:datatype,
             sh:class
           ) AS ?parameter) .

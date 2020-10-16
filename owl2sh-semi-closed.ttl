@@ -296,7 +296,7 @@ owl2sh-semi-closed:rdfsRange2shClassOrDatatype
         FILTER(?range != rdfs:Literal) .
 				BIND (
           IF(
-            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration)),
+            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration, xsd:anyURI),
             sh:datatype,
             sh:class
           ) AS ?parameter) .
