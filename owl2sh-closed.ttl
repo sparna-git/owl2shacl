@@ -288,7 +288,7 @@ owl2sh-closed:rdfsRange2shClassOrDatatype
 			WHERE {
 				{
 					$this sh:property ?propertyShape .
-					FILTER NOT EXISTS { ?propertyShape sh:class|sh:datatype ?any } .
+					FILTER NOT EXISTS { ?propertyShape sh:node|sh:class|sh:datatype ?any } .
 				}
 				?propertyShape sh:path ?property .
 				?property rdfs:range ?range .
