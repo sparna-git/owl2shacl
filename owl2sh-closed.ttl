@@ -856,7 +856,7 @@ owl2sh-closed:addPropertiesFromSuperClasses
   rdfs:label "Copies sh:path from rdfs:subClassOf+/sh:property so that the Shape can be closed" ;
   sh:construct """
       CONSTRUCT {
-        $this sh:property [ sh:path ?path. ]
+        $this sh:property [ sh:path ?path ; ]
       }
       WHERE {
         $this a sh:NodeShape .
