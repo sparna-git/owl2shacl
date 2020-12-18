@@ -292,7 +292,7 @@ owl2sh-semi-closed:rdfsRange2shClassOrDatatype
         FILTER(?range != rdfs:Literal) .
 				BIND (
           IF(
-            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration, xsd:anyURI),
+            ?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration, xsd:anyURI),
             sh:datatype,
             sh:class
           ) AS ?parameter) .
@@ -857,13 +857,13 @@ owl2sh-semi-closed:rdfsDomain2shNodeShapeWithTargetSubjectOf
       }
       WHERE {
         ?property rdfs:domain ?domain .
-        FILTER isIRI(?domain) .
+        FILTER (isIRI(?domain)) .
 
         BIND(IRI(CONCAT(STR(?property), '-', 'shape')) AS ?propertyShape)
       }
       """ ;
   sh:order 5 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-semi-closed> ;
 .
 
 owl2sh-semi-closed:shPropertyShapeCleanUp
