@@ -864,7 +864,7 @@ owl2sh-semi-closed:rdfsDomain2shNodeShapeWithTargetSubjectOf
       """ ;
   sh:order 5 ;
   sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
-
+.
 
 owl2sh-semi-closed:shPropertyShapeCleanUp
   rdf:type sh:SPARQLRule ;
