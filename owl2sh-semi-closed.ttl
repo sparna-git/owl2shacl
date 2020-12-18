@@ -89,12 +89,8 @@ owl2sh-semi-closed:ClassShape
   sh:rule owl2sh-semi-closed:shPropertyShapeCleanUp ;
 
   # extra NodeShapes to check domains of properties
-  # CHECK DOMAINS of properties within our ontology, meaning the ruleset is SEMI-CLOSED
+  # CHECK DOMAINS of properties within our ontology, meaning the ruleset is owl2sh-semi-closed
   sh:rule owl2sh-semi-closed:rdfsDomain2shNodeShapeWithTargetSubjectOf;
-
-  # Flatten and Close NodeShapes
-  # sh:rule owl2sh-semi-closed:flattenNodeShapes ;
-  # sh:rule owl2sh-semi-closed:closeNodeShapes ;
 
   sh:target [
       rdf:type sh:SPARQLTarget ;
@@ -849,41 +845,25 @@ owl2sh-semi-closed:owlAllValuesFrom2shClassOrDatatype
   sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-semi-closed> ;
 .
 
-owl2sh-semi-closed:flattenNodeShapes
+owl2sh-semi-closed:rdfsDomain2shNodeShapeWithTargetSubjectOf
   rdf:type sh:SPARQLRule ;
-  rdfs:comment "" ;
-  rdfs:label "Link rdfs:subClassOf+/sh:property to flatten NodeShapes" ;
+  rdfs:comment "For each rdfs:domain that is an IRI, create a NodeShape with a sh:targetSubjectsOf to this domain and a sh:class constraint." ;
+  rdfs:label "rdfs:domain with IRI to sh:NodeShape with sh:class" ;
   sh:construct """
       CONSTRUCT {
-        $this sh:property ?propertyShape .
+        ?propertyShape a sh:NodeShape .
+        ?propertyShape sh:targetSubjectsOf ?property .
+        ?propertyShape sh:class ?domain .
       }
       WHERE {
-        $this a sh:NodeShape .
-        $this rdfs:subClassOf+ ?ancestor .
-        ?ancestor sh:property ?propertyShape .
+        ?property rdfs:domain ?domain .
+        FILTER isIRI(?domain) .
+
+        BIND(IRI(CONCAT(STR(?property), '-', 'shape')) AS ?propertyShape)
       }
       """ ;
-  sh:order 10 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-semi-closed> ;
-.
-
-
-owl2sh-semi-closed:closeNodeShapes
-  rdf:type sh:SPARQLRule ;
-  rdfs:comment "Make all sh:NodeShapes closed Shapes" ;
-  rdfs:label "Close NodeShapes" ;
-  sh:construct """
-      CONSTRUCT {
-        $this sh:closed true .
-        $this sh:ignoredProperties ( rdf:type ) .
-      }
-      WHERE {
-        $this a sh:NodeShape .
-      }
-      """ ;
-  sh:order 10 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-semi-closed> ;
-.
+  sh:order 5 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
 
 
 owl2sh-semi-closed:shPropertyShapeCleanUp
