@@ -6,7 +6,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl2sh-open: <http://data.sparna.fr/ontologies/owl2sh-open#> .
 
-<http://data.sparna.fr/ontologies/simple-owl2sh>
+<http://data.sparna.fr/ontologies/owl2sh-open>
   rdf:type owl:Ontology ;
   sh:declare [
       rdf:type sh:PrefixDeclaration ;
