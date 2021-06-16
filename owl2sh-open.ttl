@@ -11,7 +11,7 @@
   sh:declare [
       rdf:type sh:PrefixDeclaration ;
       sh:namespace "http://data.sparna.fr/ontologies/owl2sh-open#"^^xsd:anyURI ;
-      sh:prefix "simple-owl2sh" ;
+      sh:prefix "owl2sh-open" ;
     ] ;
   sh:declare [
       rdf:type sh:PrefixDeclaration ;
