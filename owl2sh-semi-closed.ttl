@@ -8,6 +8,10 @@
 
 <http://data.sparna.fr/ontologies/owl2sh-semi-closed>
   rdf:type owl:Ontology ;
+  rdfs:label "OWL 2 SHACL semi-closed ruleset"@en;
+  rdfs:comment """Turns an OWL Ontology into a set of SHACL Shapes. 
+  Additionnal Shapes with sh:targetSubjectOf verify the domains of the ontology properties, ensuring each property is asserted on an instance of the correct class.
+  Properties from other ontologies can still be asserted anywhere as the NodeShapes are not closed"""@en;
   sh:declare [
       rdf:type sh:PrefixDeclaration ;
       sh:namespace "http://data.sparna.fr/ontologies/owl2sh-semi-closed#"^^xsd:anyURI ;
@@ -75,12 +79,8 @@ owl2sh-semi-closed:ClassShape
   sh:rule owl2sh-semi-closed:owlSomeValuesFromAllValuesFrom2dashHasValueWithClass ;
   sh:rule owl2sh-semi-closed:owlSomeValuesFromIRI2dashHasValueWithClass ;
   sh:rule owl2sh-semi-closed:owlAllValuesFrom2shClassOrDatatype ;
-  # Complicated : requires Javascript
-  # sh:rule owl2sh-semi-closed:owlAllValuesFromUnion2shClassOrDatatype ;
-  # Complicated : requires Javascript
-  # sh:rule owl2sh-semi-closed:owlSomeValuesFromUnion2dashHasValueWithClass ;
   
-  # Don't quite understand this one
+  # Turn UNIONS of IRIs into rdfs:subClassOf (so that it can be interpreted by SHACL validator I guess)
   sh:rule owl2sh-semi-closed:owlUnionOfIRIs2rdfsSubClassOf ;
   # range stuff
   sh:rule owl2sh-semi-closed:rdfsRange2shNode ;
@@ -89,7 +89,8 @@ owl2sh-semi-closed:ClassShape
   sh:rule owl2sh-semi-closed:shPropertyShapeCleanUp ;
 
   # extra NodeShapes to check domains of properties
-  # CHECK DOMAINS of properties within our ontology, meaning the ruleset is owl2sh-semi-closed
+  # This checks the domains of properties within *our* ontology, meaning the ruleset is owl2sh-semi-closed
+  # But properties for other ontologies are still allowed
   sh:rule owl2sh-semi-closed:rdfsDomain2shNodeShapeWithTargetSubjectOf;
 
   sh:target [
@@ -255,7 +256,12 @@ owl2sh-semi-closed:rdfsRange2shNode
   rdfs:label "rdfs:range with IRI to sh:class or sh:datatype" ;
   sh:construct """
       CONSTRUCT {
-        ?propertyShape sh:node ?range .
+        ?propertyShape sh:node [
+          sh:property [
+            sh:path ?propertyProbablySkosInScheme ;
+            sh:hasValue ?somethingProbablyAConceptScheme ;
+          ]
+        ] .
       }
       WHERE {
         {
@@ -263,8 +269,10 @@ owl2sh-semi-closed:rdfsRange2shNode
         }
         ?propertyShape sh:path ?property .
         ?property rdfs:range ?range .
-        ?range sh:property ?propertyWithHasValue .
-        ?propertyWithHasValue sh:hasValue ?anything .
+        ?range owl:equivalentClass ?restriction .
+        FILTER(isBlank(?restriction)) .
+        ?restriction owl:hasValue ?somethingProbablyAConceptScheme .
+        ?restriction owl:onProperty ?propertyProbablySkosInScheme .
       }
       """ ;
   sh:order 4 ;
@@ -660,7 +668,6 @@ owl2sh-semi-closed:owlHasValue2shHasValue
   sh:construct """
       CONSTRUCT {
         ?propertyShape sh:hasValue ?hasValue .
-        # ?restriction owl2sh-semi-closed:mappedTo ?propertyShape .
       }
       WHERE {
         {

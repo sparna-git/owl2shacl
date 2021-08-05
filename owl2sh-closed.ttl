@@ -8,6 +8,9 @@
 
 <http://data.sparna.fr/ontologies/owl2sh-closed>
   rdf:type owl:Ontology ;
+  rdfs:label "OWL 2 SHACL closed ruleset"@en;
+  rdfs:comment """Turns an OWL Ontology into a set of SHACL Shapes. 
+  Each shape will be sh:closed with all the properties from its superclasses and subclasses in sh:ignoredProperties."""@en;
   sh:declare [
       rdf:type sh:PrefixDeclaration ;
       sh:namespace "http://data.sparna.fr/ontologies/owl2sh-closed#"^^xsd:anyURI ;
@@ -75,12 +78,8 @@ owl2sh-closed:ClassShape
   sh:rule owl2sh-closed:owlSomeValuesFromAllValuesFrom2dashHasValueWithClass ;
   sh:rule owl2sh-closed:owlSomeValuesFromIRI2dashHasValueWithClass ;
   sh:rule owl2sh-closed:owlAllValuesFrom2shClassOrDatatype ;
-  # Complicated : requires Javascript
-  # sh:rule owl2sh-closed:owlAllValuesFromUnion2shClassOrDatatype ;
-  # Complicated : requires Javascript
-  # sh:rule owl2sh-closed:owlSomeValuesFromUnion2dashHasValueWithClass ;
   
-  # Don't quite understand this one
+  # Turn UNIONS of IRIs into rdfs:subClassOf (so that it can be interpreted by SHACL validator I guess)
   sh:rule owl2sh-closed:owlUnionOfIRIs2rdfsSubClassOf ;
   # range stuff
   sh:rule owl2sh-closed:rdfsRange2shNode ;
@@ -88,10 +87,9 @@ owl2sh-closed:ClassShape
   sh:rule owl2sh-closed:rdfsRangeLiteral2shNodeKind ;
   sh:rule owl2sh-closed:shPropertyShapeCleanUp ;
 
-  # extra NodeShapes to check domains of properties
-  # sh:rule owl2sh-closed:rdfsDomain2shNodeShapeWithTargetSubjectOf;
-
-  # Close NodeShapes and Ignore properties from subclasses
+  # Close NodeShapes and ignore all properties from superclasses and subclasses
+  # This makes the generated shape completely closed : no properties (from any ontology)
+  # can be asserted unless they are explicitely listed 
   sh:rule owl2sh-closed:closeNodeShapes ;
   sh:rule owl2sh-closed:addIgnoredPropertiesFromSubclassesAndSuperClasses ;
   
@@ -852,8 +850,12 @@ owl2sh-closed:owlAllValuesFrom2shClassOrDatatype
 
 owl2sh-closed:addIgnoredPropertiesFromSubclassesAndSuperClasses
   rdf:type sh:SPARQLRule ;
-  rdfs:comment "" ;
-  rdfs:label "Add sh:ignoredProperties with properties from subClasses and super classes. NOTE : SHACL-Play does a post-processing on this to convert the values of sh:ignoredProperties into an RDF List." ;
+  rdfs:comment """
+    For every ancestor or descendant class of this class, fetch the paths of the associated property shape,
+    and add this property as an sh:ignoredProperty value of this class.
+    NOTE : SHACL-Play does a post-processing on this to convert the values of sh:ignoredProperties into an RDF List.
+    """ ;
+  rdfs:label "Add sh:ignoredProperties with properties from subClasses and super classes." ;
   sh:construct """
       CONSTRUCT {
         $this sh:ignoredProperties ?property .

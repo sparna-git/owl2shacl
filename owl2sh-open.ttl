@@ -8,6 +8,10 @@
 
 <http://data.sparna.fr/ontologies/owl2sh-open>
   rdf:type owl:Ontology ;
+  rdfs:label "OWL 2 SHACL open ruleset"@en;
+  rdfs:comment """Turns an OWL Ontology into a set of SHACL Shapes.
+  The generated Shapes remain open and will not detect a property asserted on an instance of a wrong class.
+  Properties from other ontologies can still be asserted anywhere as the NodeShapes are not closed."""@en;
   sh:declare [
       rdf:type sh:PrefixDeclaration ;
       sh:namespace "http://data.sparna.fr/ontologies/owl2sh-open#"^^xsd:anyURI ;
@@ -75,12 +79,8 @@ owl2sh-open:ClassShape
   sh:rule owl2sh-open:owlSomeValuesFromAllValuesFrom2dashHasValueWithClass ;
   sh:rule owl2sh-open:owlSomeValuesFromIRI2dashHasValueWithClass ;
   sh:rule owl2sh-open:owlAllValuesFrom2shClassOrDatatype ;
-  # Complicated : requires Javascript
-  # sh:rule owl2sh-open:owlAllValuesFromUnion2shClassOrDatatype ;
-  # Complicated : requires Javascript
-  # sh:rule owl2sh-open:owlSomeValuesFromUnion2dashHasValueWithClass ;
   
-  # Don't quite understand this one
+  # Turn UNIONS of IRIs into rdfs:subClassOf (so that it can be interpreted by SHACL validator I guess)
   sh:rule owl2sh-open:owlUnionOfIRIs2rdfsSubClassOf ;
   # range stuff
   sh:rule owl2sh-open:rdfsRange2shNode ;
@@ -88,10 +88,6 @@ owl2sh-open:ClassShape
   sh:rule owl2sh-open:rdfsRangeLiteral2shNodeKind ;
   sh:rule owl2sh-open:shPropertyShapeCleanUp ;
 
-  # extra NodeShapes to check domains of properties
-  # THIS IS COMMENTED OUT IN THE OPEN RULESET, meaning it is still allowed to state anything on anything
-  # sh:rule owl2sh-open:rdfsDomain2shNodeShapeWithTargetSubjectOf;
-  
   sh:target [
       rdf:type sh:SPARQLTarget ;
       sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
@@ -842,29 +838,6 @@ owl2sh-open:owlAllValuesFrom2shClassOrDatatype
   sh:order 4 ;
   sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
 .
-
-
-owl2sh-open:rdfsDomain2shNodeShapeWithTargetSubjectOf
-  rdf:type sh:SPARQLRule ;
-  rdfs:comment "For each rdfs:domain that is an IRI, create a NodeShape with a sh:targetSubjectsOf to this domain and a sh:class constraint." ;
-  rdfs:label "rdfs:domain with IRI to sh:NodeShape with sh:class" ;
-  sh:construct """
-      CONSTRUCT {
-        ?propertyShape a sh:NodeShape .
-        ?propertyShape sh:targetSubjectsOf ?property .
-        ?propertyShape sh:class ?domain .
-      }
-      WHERE {
-        ?property rdfs:domain ?domain .
-        FILTER isIRI(?domain) .
-
-        BIND(IRI(CONCAT(STR(?property), '-', 'shape')) AS ?propertyShape)
-      }
-      """ ;
-  sh:order 5 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
-.
-
 
 
 owl2sh-open:shPropertyShapeCleanUp
