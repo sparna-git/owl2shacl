@@ -4,6 +4,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix swa: <http://topbraid.org/swa#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/>.
 @prefix owl2sh-closed: <http://data.sparna.fr/ontologies/owl2sh-closed#> .
 
 <http://data.sparna.fr/ontologies/owl2sh-closed>
@@ -11,6 +12,8 @@
   rdfs:label "OWL 2 SHACL closed ruleset"@en;
   rdfs:comment """Turns an OWL Ontology into a set of SHACL Shapes. 
   Each shape will be sh:closed with all the properties from its superclasses and subclasses in sh:ignoredProperties."""@en;
+  dct:source <https://www.topquadrant.com/from-owl-to-shacl-in-an-automated-way/> ; 
+  dct:provenance "This is derived from original work by TopQuadrant at https://www.topquadrant.com/from-owl-to-shacl-in-an-automated-way/, with their authorization.";
   sh:declare [
       rdf:type sh:PrefixDeclaration ;
       sh:namespace "http://data.sparna.fr/ontologies/owl2sh-closed#"^^xsd:anyURI ;

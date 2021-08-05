@@ -4,6 +4,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix swa: <http://topbraid.org/swa#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/>.
 @prefix owl2sh-open: <http://data.sparna.fr/ontologies/owl2sh-open#> .
 
 <http://data.sparna.fr/ontologies/owl2sh-open>
@@ -12,6 +13,8 @@
   rdfs:comment """Turns an OWL Ontology into a set of SHACL Shapes.
   The generated Shapes remain open and will not detect a property asserted on an instance of a wrong class.
   Properties from other ontologies can still be asserted anywhere as the NodeShapes are not closed."""@en;
+  dct:source <https://www.topquadrant.com/from-owl-to-shacl-in-an-automated-way/> ;
+  dct:provenance "This is derived from original work by TopQuadrant at https://www.topquadrant.com/from-owl-to-shacl-in-an-automated-way/, with their authorization.";
   sh:declare [
       rdf:type sh:PrefixDeclaration ;
       sh:namespace "http://data.sparna.fr/ontologies/owl2sh-open#"^^xsd:anyURI ;
@@ -90,7 +93,7 @@ owl2sh-open:ClassShape
 
   sh:target [
       rdf:type sh:SPARQLTarget ;
-      sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+      sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
       sh:select """
 SELECT ?this
 WHERE {
@@ -124,7 +127,7 @@ WHERE {
   ?equi owl:intersectionOf ?inter .
 }""" ;
   sh:order -1 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 owl2sh-open:Preprocessing-FlattenIntersectionOf
@@ -140,7 +143,7 @@ WHERE {
   FILTER isBlank(?superClass) .
 }""" ;
   sh:order 0 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 
@@ -162,7 +165,7 @@ owl2sh-open:CreateNodeShapesAndPropertyShapesFromRestrictions
       }
       """ ;
   sh:order 1 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 owl2sh-open:CreateNodeShapesAndPropertyShapesFromEquivalentClassHasValue
@@ -187,7 +190,7 @@ owl2sh-open:CreateNodeShapesAndPropertyShapesFromEquivalentClassHasValue
       }
       """ ;
   sh:order 1 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 owl2sh-open:CreateNodeShapesAndPropertyShapesFromMatchingDomains
@@ -214,7 +217,7 @@ owl2sh-open:CreateNodeShapesAndPropertyShapesFromMatchingDomains
 			}
 			""" ;
   sh:order 2 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 
@@ -241,7 +244,7 @@ owl2sh-open:owlFunctionalProperty2shMaxCount1
       }
       """ ;
   sh:order 3 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 
@@ -264,7 +267,7 @@ owl2sh-open:rdfsRange2shNode
       }
       """ ;
   sh:order 4 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 
@@ -296,7 +299,7 @@ owl2sh-open:rdfsRange2shClassOrDatatype
 			}
 			""" ;
   sh:order 5 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 
@@ -315,7 +318,7 @@ owl2sh-open:rdfsRangeLiteral2shNodeKind
       }
       """ ;
   sh:order 5 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 
@@ -339,7 +342,7 @@ owl2sh-open:owlMaxCardinality2shMaxCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 owl2sh-open:owlMaxQualifiedCardinalityOnClass2shMaxCount
   rdf:type sh:SPARQLRule ;
@@ -373,7 +376,7 @@ owl2sh-open:owlMaxQualifiedCardinalityOnClass2shMaxCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 owl2sh-open:owlMaxQualifiedCardinalityOnClass2shQualifiedMaxCount
   rdf:type sh:SPARQLRule ;
@@ -405,7 +408,7 @@ owl2sh-open:owlMaxQualifiedCardinalityOnClass2shQualifiedMaxCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 owl2sh-open:owlMaxQualifiedCardinalityOnDataRange2shQualifiedMaxCount
   rdf:type sh:SPARQLRule ;
@@ -436,7 +439,7 @@ owl2sh-open:owlMaxQualifiedCardinalityOnDataRange2shQualifiedMaxCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 owl2sh-open:owlMinCardinality2shMinCount
   rdf:type sh:SPARQLRule ;
@@ -460,7 +463,7 @@ owl2sh-open:owlMinCardinality2shMinCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 owl2sh-open:owlMinQualifiedCardinalityOnClass2shMinCount
   rdf:type sh:SPARQLRule ;
@@ -487,7 +490,7 @@ owl2sh-open:owlMinQualifiedCardinalityOnClass2shMinCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 owl2sh-open:owlMinQualifiedCardinalityOnClass2shQualifiedMinCount
   rdf:type sh:SPARQLRule ;
@@ -519,7 +522,7 @@ owl2sh-open:owlMinQualifiedCardinalityOnClass2shQualifiedMinCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 owl2sh-open:owlMinQualifiedCardinalityOnDataRange2shQualifiedMinCount
   rdf:type sh:SPARQLRule ;
@@ -550,7 +553,7 @@ owl2sh-open:owlMinQualifiedCardinalityOnDataRange2shQualifiedMinCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 owl2sh-open:owlQualifiedCardinalityOnClass2shMinMaxCount
   rdf:type sh:SPARQLRule ;
@@ -578,7 +581,7 @@ owl2sh-open:owlQualifiedCardinalityOnClass2shMinMaxCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 owl2sh-open:owlQualifiedCardinalityOnClass2shQualifiedMinMaxCount
   rdf:type sh:SPARQLRule ;
@@ -611,7 +614,7 @@ owl2sh-open:owlQualifiedCardinalityOnClass2shQualifiedMinMaxCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 owl2sh-open:owlQualifiedCardinalityOnDataRange2shQualifiedMinMaxCount
   rdf:type sh:SPARQLRule ;
@@ -643,7 +646,7 @@ owl2sh-open:owlQualifiedCardinalityOnDataRange2shQualifiedMinMaxCount
       }
       """ ;
   sh:order 6 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 
@@ -668,7 +671,7 @@ owl2sh-open:owlHasValue2shHasValue
       }
 """ ;
   sh:order 8 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 owl2sh-open:owlSomeValuesFrom2shMinCount1
@@ -689,7 +692,7 @@ owl2sh-open:owlSomeValuesFrom2shMinCount1
       }
 """ ;
   sh:order 4 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 owl2sh-open:owlSomeValuesFromAllValuesFrom2dashHasValueWithClass
@@ -751,7 +754,7 @@ ex:ConstitutionalOwner
       }
 """ ;
   sh:order 7 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 owl2sh-open:owlUnionOfIRIs2rdfsSubClassOf
@@ -777,7 +780,7 @@ owl2sh-open:owlUnionOfIRIs2rdfsSubClassOf
       }
 """ ;
   sh:order 4 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 owl2sh-open:owlSomeValuesFromIRI2dashHasValueWithClass
@@ -804,7 +807,7 @@ owl2sh-open:owlSomeValuesFromIRI2dashHasValueWithClass
       }
 """ ;
   sh:order 4 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 owl2sh-open:owlAllValuesFrom2shClassOrDatatype
@@ -836,7 +839,7 @@ owl2sh-open:owlAllValuesFrom2shClassOrDatatype
       }
 """ ;
   sh:order 4 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 
@@ -851,7 +854,7 @@ WHERE {
     ?shape sh:property ?propertyShape .
 }""" ;
   sh:order 100 ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
 .
 
 
@@ -876,7 +879,7 @@ owl2sh-open:getPropertyShape
       sh:class sh:Shape ;
       sh:description "The shape hosting the constraint." ;
     ] ;
-  sh:prefixes <http://data.sparna.fr/ontologies/simple-owl2sh> ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
   sh:returnType sh:PropertyShape ;
   sh:select """
     SELECT ?result

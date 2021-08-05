@@ -4,6 +4,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix swa: <http://topbraid.org/swa#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/>.
 @prefix owl2sh-semi-closed: <http://data.sparna.fr/ontologies/owl2sh-semi-closed#> .
 
 <http://data.sparna.fr/ontologies/owl2sh-semi-closed>
@@ -12,6 +13,8 @@
   rdfs:comment """Turns an OWL Ontology into a set of SHACL Shapes. 
   Additionnal Shapes with sh:targetSubjectOf verify the domains of the ontology properties, ensuring each property is asserted on an instance of the correct class.
   Properties from other ontologies can still be asserted anywhere as the NodeShapes are not closed"""@en;
+  dct:source <https://www.topquadrant.com/from-owl-to-shacl-in-an-automated-way/> ;
+  dct:provenance "This is derived from original work by TopQuadrant at https://www.topquadrant.com/from-owl-to-shacl-in-an-automated-way/, with their authorization.";
   sh:declare [
       rdf:type sh:PrefixDeclaration ;
       sh:namespace "http://data.sparna.fr/ontologies/owl2sh-semi-closed#"^^xsd:anyURI ;
