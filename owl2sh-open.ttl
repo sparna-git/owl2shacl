@@ -292,7 +292,7 @@ owl2sh-open:rdfsRange2shClassOrDatatype
         FILTER(?range != rdfs:Literal) .
 				BIND (
           IF(
-            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration, xsd:anyURI)),
+            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:double, xsd:duration, xsd:anyURI)),
             sh:datatype,
             sh:class
           ) AS ?parameter) .
@@ -743,7 +743,7 @@ ex:ConstitutionalOwner
           ?restriction owl:someValuesFrom ?someValuesFrom .
           ?someValuesFrom owl:allValuesFrom ?allValuesFrom .
           FILTER isIRI(?allValuesFrom) .
-          FILTER (!(?allValuesFrom IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration))) .
+          FILTER (!(?allValuesFrom IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:double, xsd:duration, xsd:anyURI))) .
           FILTER isBlank(?someValuesFrom) .
         }
         ?restriction owl:onProperty ?property .
@@ -801,7 +801,7 @@ owl2sh-open:owlSomeValuesFromIRI2dashHasValueWithClass
         ?restriction owl:someValuesFrom ?someValuesFrom .
         ?restriction owl:onProperty ?property .
         FILTER (isIRI(?someValuesFrom))
-        FILTER (!(?someValuesFrom IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration))) .
+        FILTER (!(?someValuesFrom IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:double, xsd:duration, xsd:anyURI))) .
         FILTER NOT EXISTS { ?property rdfs:range ?someValuesFrom } .
         BIND (owl2sh-open:getPropertyShape(?property, $this) AS ?propertyShape) .
       }
@@ -830,7 +830,8 @@ owl2sh-open:owlAllValuesFrom2shClassOrDatatype
         FILTER isIRI(?allValuesFrom) .
         BIND (owl2sh-open:getPropertyShape(?property, $this) AS ?propertyShape) .
         BIND (
-          IF(owl2sh-open:isDatatypeRange(?allValuesFrom),
+          IF(
+            (?allValuesFrom IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:double, xsd:duration, xsd:anyURI)),
             sh:datatype,
             sh:class
           )
