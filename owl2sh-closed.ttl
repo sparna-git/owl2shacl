@@ -298,7 +298,7 @@ owl2sh-closed:rdfsRange2shClassOrDatatype
         # exclude the case where range is owl:Thing
 				BIND (
           IF(
-            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration, xsd:anyURI)),
+            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration, xsd:anyURI, rdf:langString)),
             sh:datatype,
             sh:class
           ) AS ?parameter) .
