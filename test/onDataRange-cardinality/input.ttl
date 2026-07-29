@@ -26,6 +26,7 @@ ex:Road.speedLimit a owl:DatatypeProperty ; rdfs:domain ex:Road ; rdfs:range xsd
 # Object property control (must remain unchanged: already handled by the
 # pre-existing owl:onClass simple rules).
 ex:Road.lane       a owl:ObjectProperty ;   rdfs:domain ex:Road ; rdfs:range ex:Lane .
+ex:Road.junction   a owl:ObjectProperty ;   rdfs:domain ex:Road ; rdfs:range ex:Lane .
 
 ex:Road a owl:Class ;
     # name : exactly 1  -> owl:qualifiedCardinality + owl:onDataRange
@@ -43,6 +44,13 @@ ex:Road a owl:Class ;
         owl:onProperty ex:Road.speedLimit ;
         owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
         owl:onDataRange xsd:integer ] ;
+    # junction : at most 1 -> owl:maxQualifiedCardinality + owl:onClass. Object-property
+    # mirror of speedLimit, so each new onDataRange rule can be compared against the
+    # behaviour of its pre-existing onClass sibling in the same flavour.
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty ex:Road.junction ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass ex:Lane ] ;
     # lane : exactly 1 -> owl:qualifiedCardinality + owl:onClass (object property control)
     rdfs:subClassOf [ a owl:Restriction ;
         owl:onProperty ex:Road.lane ;
