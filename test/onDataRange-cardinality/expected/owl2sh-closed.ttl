@@ -1,0 +1,42 @@
+@prefix ex:            <http://example.org/ontology/test#> .
+@prefix owl:           <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:           <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:          <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:            <http://www.w3.org/ns/shacl#> .
+@prefix xsd:           <http://www.w3.org/2001/XMLSchema#> .
+
+# Expected output of the "closed" flavor for input.ttl AFTER this contribution.
+# (Illustrative reference: blank-node/prefix layout is Jena-dependent; the
+# meaningful assertions are the sh:minCount / sh:maxCount on the DATA properties.)
+#
+# Object property control: unchanged from before (already worked):
+ex:Road-Road.lane  rdf:type  sh:PropertyShape ;
+        sh:class     ex:Lane ;
+        sh:maxCount  1 ;
+        sh:minCount  1 ;
+        sh:path      ex:Road.lane .
+
+# Data property, owl:qualifiedCardinality 1  -> NEW: sh:minCount 1 + sh:maxCount 1
+ex:Road-Road.name  rdf:type  sh:PropertyShape ;
+        sh:datatype  xsd:string ;
+        sh:maxCount  1 ;
+        sh:minCount  1 ;
+        sh:path      ex:Road.name .
+
+# Data property, owl:maxQualifiedCardinality 1  -> NEW: sh:maxCount 1
+ex:Road-Road.speedLimit
+        rdf:type     sh:PropertyShape ;
+        sh:datatype  xsd:integer ;
+        sh:maxCount  1 ;
+        sh:path      ex:Road.speedLimit .
+
+ex:Road  rdf:type             sh:NodeShape , rdfs:Class ;
+        sh:closed             true ;
+        sh:ignoredProperties  rdf:type ;
+        sh:property           ex:Road-Road.lane , ex:Road-Road.width , ex:Road-Road.name , ex:Road-Road.speedLimit .
+
+# Data property, owl:minQualifiedCardinality 1  -> NEW: sh:minCount 1
+ex:Road-Road.width  rdf:type  sh:PropertyShape ;
+        sh:datatype  xsd:integer ;
+        sh:minCount  1 ;
+        sh:path      ex:Road.width .
