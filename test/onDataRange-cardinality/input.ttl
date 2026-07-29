@@ -1,0 +1,50 @@
+@prefix ex:   <http://example.org/ontology/test#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Minimal ontology exercising OWL 2 *data property* qualified cardinality
+# restrictions (owl:onDataRange), plus one *object property* restriction
+# (owl:onClass) as a control that must remain unchanged.
+#
+# The three data properties use owl:onDataRange whose value equals the
+# property's rdfs:range. Before this contribution, these produced sh:datatype
+# but NO sh:minCount / sh:maxCount. The object property (owl:onClass) already
+# produced the counts. See ../README.md and expected/owl2sh-closed.ttl.
+
+ex:Ontology a owl:Ontology .
+
+ex:Lane a owl:Class .
+
+# Data properties (rdfs:range is an allow-listed xsd datatype so the global
+# range maps cleanly to sh:datatype; the only OLD/NEW delta is the count).
+ex:Road.name       a owl:DatatypeProperty ; rdfs:domain ex:Road ; rdfs:range xsd:string .
+ex:Road.width      a owl:DatatypeProperty ; rdfs:domain ex:Road ; rdfs:range xsd:integer .
+ex:Road.speedLimit a owl:DatatypeProperty ; rdfs:domain ex:Road ; rdfs:range xsd:integer .
+
+# Object property control (must remain unchanged: already handled by the
+# pre-existing owl:onClass simple rules).
+ex:Road.lane       a owl:ObjectProperty ;   rdfs:domain ex:Road ; rdfs:range ex:Lane .
+
+ex:Road a owl:Class ;
+    # name : exactly 1  -> owl:qualifiedCardinality + owl:onDataRange
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty ex:Road.name ;
+        owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onDataRange xsd:string ] ;
+    # width : at least 1 -> owl:minQualifiedCardinality + owl:onDataRange
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty ex:Road.width ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onDataRange xsd:integer ] ;
+    # speedLimit : at most 1 -> owl:maxQualifiedCardinality + owl:onDataRange
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty ex:Road.speedLimit ;
+        owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onDataRange xsd:integer ] ;
+    # lane : exactly 1 -> owl:qualifiedCardinality + owl:onClass (object property control)
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty ex:Road.lane ;
+        owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onClass ex:Lane ] .
