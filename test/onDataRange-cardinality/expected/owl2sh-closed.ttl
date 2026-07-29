@@ -16,6 +16,16 @@ ex:Road-Road.lane  rdf:type  sh:PropertyShape ;
         sh:minCount  1 ;
         sh:path      ex:Road.lane .
 
+# Object property, owl:maxQualifiedCardinality 1 -> sh:maxCount 1. Also unchanged; it is
+# the sibling of ex:Road.speedLimit below, so the two show that each new onDataRange rule
+# fires exactly where its onClass counterpart does. In the "open" flavor neither of them
+# produces a count -- see verify.py for the per-flavor expectations.
+ex:Road-Road.junction
+        rdf:type     sh:PropertyShape ;
+        sh:class     ex:Lane ;
+        sh:maxCount  1 ;
+        sh:path      ex:Road.junction .
+
 # Data property, owl:qualifiedCardinality 1  -> NEW: sh:minCount 1 + sh:maxCount 1
 ex:Road-Road.name  rdf:type  sh:PropertyShape ;
         sh:datatype  xsd:string ;
@@ -33,7 +43,7 @@ ex:Road-Road.speedLimit
 ex:Road  rdf:type             sh:NodeShape , rdfs:Class ;
         sh:closed             true ;
         sh:ignoredProperties  rdf:type ;
-        sh:property           ex:Road-Road.lane , ex:Road-Road.width , ex:Road-Road.name , ex:Road-Road.speedLimit .
+        sh:property           ex:Road-Road.lane , ex:Road-Road.junction , ex:Road-Road.width , ex:Road-Road.name , ex:Road-Road.speedLimit .
 
 # Data property, owl:minQualifiedCardinality 1  -> NEW: sh:minCount 1
 ex:Road-Road.width  rdf:type  sh:PropertyShape ;

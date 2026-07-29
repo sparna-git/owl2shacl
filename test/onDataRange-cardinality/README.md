@@ -87,3 +87,47 @@ count. **After** the fix they gain the counts shown in
 both. The `semi-closed` and `open` flavors behave the same for these
 constraints; `original` behaves the same but additionally `owl:imports`
 `http://datashapes.org/dash`, so it requires network access to run.
+
+## Reproducing offline
+
+`verify.py` applies a ruleset's rules to `input.ttl` with
+[pyshacl](https://github.com/RDFLib/pySHACL) and checks the resulting
+`sh:minCount` / `sh:maxCount` triples, so the fix can be re-verified without the
+SHACL Play! web UI or a Java toolchain:
+
+```bash
+pip install pyshacl
+python test/onDataRange-cardinality/verify.py                 # all checkable flavors
+python test/onDataRange-cardinality/verify.py owl2sh-closed   # one flavor
+```
+
+It exits non-zero on any mismatch, so it can be dropped into CI as-is. Current result:
+
+```
+PASS  owl2sh-closed
+PASS  owl2sh-semi-closed
+PASS  owl2sh-open
+```
+
+### Per-flavor expectations, and why they differ
+
+`input.ttl` pairs every data-property case with its object-property sibling:
+
+| Restriction | Data property (`owl:onDataRange`) | Object property (`owl:onClass`) |
+|---|---|---|
+| `owl:qualifiedCardinality 1` | `Road.name` | `Road.lane` |
+| `owl:minQualifiedCardinality 1` | `Road.width` | — |
+| `owl:maxQualifiedCardinality 1` | `Road.speedLimit` | `Road.junction` |
+
+In `closed` and `semi-closed` every pair produces the same counts. In `open`, a
+restriction carrying only `owl:maxQualifiedCardinality` produces no count — and that holds
+for `Road.junction` (`owl:onClass`, pre-existing behaviour) exactly as for
+`Road.speedLimit` (`owl:onDataRange`, added here). The new rules are therefore faithful
+mirrors of their siblings in all three flavors, which is the point of the contribution;
+the `open` flavor's treatment of maximum-only restrictions is pre-existing and unchanged.
+
+### `owl2sh-original`
+
+Not covered by `verify.py`: that flavor declares its rules through the DASH vocabulary
+(`owl:imports http://datashapes.org/dash`), and pyshacl rejects them with *"the Rule must
+be defined as either a TripleRule or SPARQLRule"*. Verify it with SHACL Play!.
