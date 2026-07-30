@@ -158,8 +158,34 @@ in `owl2sh-open.ttl` and `owl2sh-original.ttl`, so all four rulesets are consist
 simple and qualified rules remain mutually exclusive everywhere. `verify.py` collects
 qualified counts as well as plain ones, so a regression here fails the check.
 
-### `owl2sh-original`
+### Why `owl2sh-original.ttl` is not touched
 
-Not covered by `verify.py`: that flavor declares its rules through the DASH vocabulary
-(`owl:imports http://datashapes.org/dash`), and pyshacl rejects them with *"the Rule must
-be defined as either a TripleRule or SPARQLRule"*. Verify it with SHACL Play!.
+`owl2sh-original.ttl` is the unwired historical import of TopQuadrant's original rules. It
+is not one of the project's flavors: the repository README documents *"This comes in 3
+flavors"* (open, semi-closed, closed), the `shacl-play` CLI's `owl2shacl` command accepts
+only `CLOSED`, `SEMICLOSED` and `OPEN`, the hosted converter offers the same three, and no
+code in the `sparna-git` organisation references the file.
+
+Changing a ruleset that nothing consumes and no available tool can execute would add
+unverifiable code, so this contribution leaves it alone. Say the word if you would rather
+keep it in sync and it can be added back.
+
+### Cross-checked against the released tool
+
+The behaviour this contribution changes is reproducible with `shacl-play` 0.12.2
+(`shacl-play-app-0.12.2-onejar.jar`, `owl2shacl -i input.ttl -o out.ttl -s <style>`) on the
+fixture in this folder. The shipped rules lose data-property cardinality — and the two
+flavors do not even agree with each other:
+
+| `input.ttl` property | `-s CLOSED` (0.12.2) | `-s OPEN` (0.12.2) |
+|---|---|---|
+| `Road.name` (data, qualification redundant) | `sh:datatype` only — **count lost** | `sh:datatype` + `sh:qualifiedMinCount`/`MaxCount` |
+| `Road.width` (data, min only) | `sh:datatype` only | `sh:datatype` + `sh:qualifiedMinCount` |
+| `Road.speedLimit` (data, max only) | `sh:datatype` only | `sh:datatype` + `sh:qualifiedMaxCount` |
+| `Road.lane`, `Road.junction` (object) | `sh:minCount`/`sh:maxCount` | `sh:minCount`/`sh:maxCount` |
+| `Road.laneCount` (data, qualification meaningful) | `sh:qualifiedMinCount`/`MaxCount` | same |
+
+`CLOSED` drops the constraint entirely, while `OPEN` emits a *qualified* constraint for a
+qualification that carries no information — because its qualified rules lack the
+`FILTER NOT EXISTS` guard that `CLOSED`'s have. After this contribution both emit the plain
+`sh:minCount` / `sh:maxCount`, exactly as the `owl:onClass` siblings already do.
