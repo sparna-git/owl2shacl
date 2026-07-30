@@ -20,6 +20,10 @@ fires exactly where its sibling fires. In the ``open`` flavor a restriction carr
 property (``Road.speedLimit``, ``owl:onDataRange``). The fixture contains both so the
 symmetry is visible rather than looking like a gap in the data-property rules.
 
+No flavor may emit a plain and a qualified count for the same property: the simple rules
+and the qualified rules are mutually exclusive by construction, each guarded by
+``FILTER EXISTS`` / ``FILTER NOT EXISTS`` on ``?property rdfs:range ?onDataRange``.
+
 ``owl2sh-original`` is not checked here: it declares its rules via the DASH vocabulary
 (``owl:imports http://datashapes.org/dash``), which pyshacl rejects with
 "the Rule must be defined as either a TripleRule or SPARQLRule". Verify that flavor with
@@ -34,10 +38,19 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 
+#: Every count constraint the rules can emit. Plain and qualified are both collected so a
+#: property receiving both -- the simple rule and the qualified rule firing on the same
+#: restriction -- fails the check instead of passing unnoticed.
+COUNT_CONSTRAINTS = ("minCount", "maxCount", "qualifiedMinCount", "qualifiedMaxCount")
+
 #: Counts each flavor is expected to produce, as (property local name, constraint, value).
 #: "closed" and "semi-closed" constrain optional properties; "open" does not, for object
 #: and data properties alike.
 FULL = {
+    # Qualification NOT redundant (onDataRange xsd:int narrower than range xsd:decimal):
+    # the qualified rule fires, the simple one must not. Same in every flavor.
+    ("Road.laneCount", "qualifiedMaxCount", "1"),
+    ("Road.laneCount", "qualifiedMinCount", "1"),
     ("Road.junction", "maxCount", "1"),  # optional object property (owl:onClass)
     ("Road.lane", "maxCount", "1"),  # exactly-one object property
     ("Road.lane", "minCount", "1"),
@@ -63,7 +76,10 @@ def counts(graph) -> set[tuple[str, str, str]]:
     found = set()
     for subject, predicate, obj in graph:
         local = str(predicate).split("#")[-1]
-        if local in ("minCount", "maxCount"):
+        # Qualified counts are collected too: a property that receives both a plain and a
+        # qualified count has been hit by the simple and the qualified rule at once, which
+        # is the double-firing this check must catch, not hide.
+        if local in COUNT_CONSTRAINTS:
             path = graph.value(subject, sh_path)
             found.add((str(path).split("#")[-1].split("/")[-1], local, str(obj)))
     return found
