@@ -24,10 +24,9 @@ No flavor may emit a plain and a qualified count for the same property: the simp
 and the qualified rules are mutually exclusive by construction, each guarded by
 ``FILTER EXISTS`` / ``FILTER NOT EXISTS`` on ``?property rdfs:range ?onDataRange``.
 
-``owl2sh-original`` is not checked here: it declares its rules via the DASH vocabulary
-(``owl:imports http://datashapes.org/dash``), which pyshacl rejects with
-"the Rule must be defined as either a TripleRule or SPARQLRule". Verify that flavor with
-SHACL Play! instead.
+``owl2sh-original.ttl`` is deliberately out of scope: it is the unwired historical import
+of TopQuadrant's rules, is not one of the three documented flavors, and is not offered by
+the CLI or the hosted converter. See the README.
 """
 
 from __future__ import annotations
