@@ -436,6 +436,7 @@ owl2sh-open:owlMaxQualifiedCardinalityOnDataRange2shQualifiedMaxCount
         ?restriction owl:onProperty ?property .
         ?restriction owl:onDataRange ?onDataRange .
         FILTER isIRI(?onDataRange) .
+        FILTER NOT EXISTS { ?property rdfs:range ?onDataRange } .
         BIND (xsd:integer(?raw) AS ?maxCount) .
         BIND (BNODE() AS ?propertyShape) .
         BIND (BNODE() AS ?valueShape) .
@@ -550,6 +551,7 @@ owl2sh-open:owlMinQualifiedCardinalityOnDataRange2shQualifiedMinCount
         ?restriction owl:onDataRange ?onDataRange .
         ?restriction owl:onProperty ?property .
         FILTER isIRI(?onDataRange) .
+        FILTER NOT EXISTS { ?property rdfs:range ?onDataRange } .
         BIND (xsd:integer(?raw) AS ?minCount) .
         BIND (BNODE() AS ?propertyShape) .
         BIND (BNODE() AS ?valueShape) .
@@ -643,6 +645,7 @@ owl2sh-open:owlQualifiedCardinalityOnDataRange2shQualifiedMinMaxCount
         ?restriction owl:onDataRange ?onDataRange .
         ?restriction owl:onProperty ?property .
         FILTER isIRI(?onDataRange) .
+        FILTER NOT EXISTS { ?property rdfs:range ?onDataRange } .
         BIND (xsd:integer(?raw) AS ?count) .
         BIND (BNODE() AS ?propertyShape) .
         BIND (BNODE() AS ?valueShape) .

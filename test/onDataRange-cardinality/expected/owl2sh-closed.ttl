@@ -50,3 +50,14 @@ ex:Road-Road.width  rdf:type  sh:PropertyShape ;
         sh:datatype  xsd:integer ;
         sh:minCount  1 ;
         sh:path      ex:Road.width .
+
+# Data property whose qualifying datatype is NARROWER than its rdfs:range
+# (owl:onDataRange xsd:int, rdfs:range xsd:decimal). The qualification carries
+# information, so the pre-existing qualified rule fires and the new simple rule must not:
+# exactly one of the two applies to any given restriction. Unchanged by this contribution;
+# present so that a lost FILTER guard is caught from either direction.
+[]      rdf:type              sh:PropertyShape ;
+        sh:path               ex:Road.laneCount ;
+        sh:qualifiedMinCount  1 ;
+        sh:qualifiedMaxCount  1 ;
+        sh:qualifiedValueShape  [ sh:datatype xsd:int ] .

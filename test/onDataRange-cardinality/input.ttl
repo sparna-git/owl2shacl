@@ -22,6 +22,9 @@ ex:Lane a owl:Class .
 ex:Road.name       a owl:DatatypeProperty ; rdfs:domain ex:Road ; rdfs:range xsd:string .
 ex:Road.width      a owl:DatatypeProperty ; rdfs:domain ex:Road ; rdfs:range xsd:integer .
 ex:Road.speedLimit a owl:DatatypeProperty ; rdfs:domain ex:Road ; rdfs:range xsd:integer .
+# Qualifying datatype NARROWER than the property range: the qualification carries
+# information, so the qualified rule must fire and the simple rule must not.
+ex:Road.laneCount  a owl:DatatypeProperty ; rdfs:domain ex:Road ; rdfs:range xsd:decimal .
 
 # Object property control (must remain unchanged: already handled by the
 # pre-existing owl:onClass simple rules).
@@ -51,6 +54,12 @@ ex:Road a owl:Class ;
         owl:onProperty ex:Road.junction ;
         owl:maxQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
         owl:onClass ex:Lane ] ;
+    # laneCount : exactly 1, restricted to xsd:int while the range is xsd:decimal
+    # -> owl:qualifiedCardinality + owl:onDataRange, qualification NOT redundant
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty ex:Road.laneCount ;
+        owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+        owl:onDataRange xsd:int ] ;
     # lane : exactly 1 -> owl:qualifiedCardinality + owl:onClass (object property control)
     rdfs:subClassOf [ a owl:Restriction ;
         owl:onProperty ex:Road.lane ;

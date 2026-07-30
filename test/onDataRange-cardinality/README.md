@@ -118,6 +118,13 @@ PASS  owl2sh-open
 | `owl:qualifiedCardinality 1` | `Road.name` | `Road.lane` |
 | `owl:minQualifiedCardinality 1` | `Road.width` | — |
 | `owl:maxQualifiedCardinality 1` | `Road.speedLimit` | `Road.junction` |
+| `owl:qualifiedCardinality 1`, datatype **narrower** than the range | `Road.laneCount` | — |
+
+`Road.laneCount` covers the other direction of the mutual exclusion: its `owl:onDataRange`
+(`xsd:int`) is narrower than its `rdfs:range` (`xsd:decimal`), so the qualification is not
+redundant, the *qualified* rule fires and the simple rule must stay silent. Together with
+the redundant cases above, that pins both guards: a property may never receive a plain and
+a qualified count for the same restriction.
 
 In `closed` and `semi-closed` every pair produces the same counts. In `open`, a
 restriction carrying only `owl:maxQualifiedCardinality` produces no count — and that holds
@@ -125,6 +132,31 @@ for `Road.junction` (`owl:onClass`, pre-existing behaviour) exactly as for
 `Road.speedLimit` (`owl:onDataRange`, added here). The new rules are therefore faithful
 mirrors of their siblings in all three flavors, which is the point of the contribution;
 the `open` flavor's treatment of maximum-only restrictions is pre-existing and unchanged.
+
+### A missing guard in `owl2sh-open` and `owl2sh-original`
+
+Adding the simple rules surfaced a pre-existing asymmetry in two of the four rulesets. In
+`closed` and `semi-closed` the *qualified* `owl:onDataRange` rules carry
+`FILTER NOT EXISTS { ?property rdfs:range ?onDataRange }`, mirroring their `owl:onClass`
+siblings. In `open` and `original` that line was absent from the three `onDataRange`
+qualified rules, while their `onClass` siblings had it.
+
+On its own that was harmless: with no simple `onDataRange` rule to compete with, the
+qualified rule was the only one that could fire. Adding the simple rules makes it a defect —
+both fire on the same restriction, so a property gets `sh:minCount` **and**
+`sh:qualifiedMinCount`:
+
+```
+owl2sh-open, before the guard fix:
+    ('Road.name', 'maxCount', '1')          ('Road.name', 'qualifiedMaxCount', '1')
+    ('Road.name', 'minCount', '1')          ('Road.name', 'qualifiedMinCount', '1')
+    ('Road.width', 'minCount', '1')         ('Road.width', 'qualifiedMinCount', '1')
+```
+
+This contribution therefore also adds the missing `FILTER NOT EXISTS` to those three rules
+in `owl2sh-open.ttl` and `owl2sh-original.ttl`, so all four rulesets are consistent and the
+simple and qualified rules remain mutually exclusive everywhere. `verify.py` collects
+qualified counts as well as plain ones, so a regression here fails the check.
 
 ### `owl2sh-original`
 
