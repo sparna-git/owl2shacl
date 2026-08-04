@@ -88,6 +88,7 @@ owl2sh-open:ClassShape
   # range stuff
   sh:rule owl2sh-open:rdfsRange2shNode ;
   sh:rule owl2sh-open:rdfsRange2shClassOrDatatype ;
+  sh:rule owl2sh-open:owlOneOf2shIn ;
   sh:rule owl2sh-open:rdfsRangeLiteral2shNodeKind ;
   sh:rule owl2sh-open:shPropertyShapeCleanUp ;
 
@@ -273,7 +274,7 @@ owl2sh-open:rdfsRange2shNode
 
 owl2sh-open:rdfsRange2shClassOrDatatype
   rdf:type sh:SPARQLRule ;
-  rdfs:comment "For each relevant property that has an rdfs:range, create sh:class or sh:datatype constraint unless it already exists (from a restriction)." ;
+  rdfs:comment "For each relevant property that has an rdfs:range, create sh:class or sh:datatype constraint unless it already exists (from a restriction). A range counts as a datatype when it is declared as an rdfs:Datatype, when it is an XML Schema built-in, or when it is rdf:langString; testing the range itself rather than matching a fixed list of IRIs means any rdfs:Datatype - including one defined by owl:oneOf - yields sh:datatype. sh:class is never satisfied by a literal (SHACL Core, Sec. 4.1.1), so emitting it for a datatype range produces a constraint that can only fail." ;
   rdfs:label "rdfs:range with IRI to sh:class or sh:datatype" ;
   sh:construct """
 			CONSTRUCT {
@@ -288,14 +289,45 @@ owl2sh-open:rdfsRange2shClassOrDatatype
 				?propertyShape sh:path ?property .
 				?property rdfs:range ?range .
 				FILTER isIRI(?range) .
+        # an enumerated data range is expressed with sh:in by owlOneOf2shIn; sh:datatype
+        # naming the enumeration would be violated by its own permitted values, which are
+        # plain literals rather than instances of a custom datatype
+        FILTER NOT EXISTS { ?range owl:oneOf ?enumeratedValues } .
         # exclude the case where range is rdfs:Literal, this will be handled with an sh:kind
         FILTER(?range != rdfs:Literal) .
 				BIND (
           IF(
-            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:double, xsd:duration, xsd:anyURI, rdf:langString)),
+            (EXISTS { ?range a rdfs:Datatype } || STRSTARTS(STR(?range), "http://www.w3.org/2001/XMLSchema#") || ?range = rdf:langString),
             sh:datatype,
             sh:class
           ) AS ?parameter) .
+			}
+			""" ;
+  sh:order 5 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
+.
+
+
+owl2sh-open:owlOneOf2shIn
+  rdf:type sh:SPARQLRule ;
+  rdfs:comment "For each relevant property whose rdfs:range is a datatype enumerated by owl:oneOf, create an sh:in constraint listing the permitted values. Without this the enumeration is lost: the range is an rdfs:Datatype, so no sh:class or sh:datatype constraint can express which literals are allowed." ;
+  rdfs:label "owl:oneOf on a datatype range to sh:in" ;
+  sh:construct """
+			CONSTRUCT {
+				?propertyShape sh:in ?permittedValues .
+				?listNode rdf:first ?value ;
+				          rdf:rest ?remainder .
+			}
+			WHERE {
+				{
+					$this sh:property ?propertyShape .
+				}
+				?propertyShape sh:path ?property .
+				?property rdfs:range ?range .
+				?range owl:oneOf ?permittedValues .
+				?permittedValues rdf:rest* ?listNode .
+				?listNode rdf:first ?value ;
+				          rdf:rest ?remainder .
 			}
 			""" ;
   sh:order 5 ;
