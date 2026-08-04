@@ -1,0 +1,38 @@
+@prefix dash:          <http://datashapes.org/dash#> .
+@prefix dct:           <http://purl.org/dc/terms/> .
+@prefix ex:            <http://example.org/ontology/test#> .
+@prefix graphql:       <http://datashapes.org/graphql#> .
+@prefix owl:           <http://www.w3.org/2002/07/owl#> .
+@prefix owl2sh-closed: <http://data.sparna.fr/ontologies/owl2sh-closed#> .
+@prefix rdf:           <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:          <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:            <http://www.w3.org/ns/shacl#> .
+@prefix skos:          <http://www.w3.org/2004/02/skos/core#> .
+@prefix swa:           <http://topbraid.org/swa#> .
+@prefix tosh:          <http://topbraid.org/tosh#> .
+@prefix xsd:           <http://www.w3.org/2001/XMLSchema#> .
+
+ex:Car-Car.doors  rdf:type  sh:PropertyShape ;
+        sh:datatype  xsd:nonNegativeInteger ;
+        sh:path      ex:Car.doors .
+
+ex:Car-Car.colour  rdf:type  sh:PropertyShape ;
+        sh:in     ( "red" "green" "blue" ) ;
+        sh:path   ex:Car.colour .
+
+ex:Car-Car.owner  rdf:type  sh:PropertyShape ;
+        sh:class  ex:Person ;
+        sh:path   ex:Car.owner .
+
+ex:Car-Car.mass  rdf:type  sh:PropertyShape ;
+        sh:datatype  xsd:double ;
+        sh:path      ex:Car.mass .
+
+ex:Car  rdf:type              rdfs:Class , sh:NodeShape ;
+        sh:closed             true ;
+        sh:ignoredProperties  rdf:type ;
+        sh:property           ex:Car-Car.colour , ex:Car-Car.mass , ex:Car-Car.owner , ex:Car-Car.doors , ex:Car-Car.name .
+
+ex:Car-Car.name  rdf:type  sh:PropertyShape ;
+        sh:datatype  xsd:string ;
+        sh:path      ex:Car.name .

@@ -1,0 +1,2 @@
+# build output of the shacl-play CLI, written into its working directory
+shacl-play-app.log
