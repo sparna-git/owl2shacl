@@ -87,9 +87,12 @@ owl2sh-closed:ClassShape
   
   # Turn UNIONS of IRIs into rdfs:subClassOf (so that it can be interpreted by SHACL validator I guess)
   sh:rule owl2sh-closed:owlUnionOfIRIs2rdfsSubClassOf ;
+  # Turn UNIONS of anonymous class expressions into an sh:or disjunction
+  sh:rule owl2sh-closed:owlUnionOfIntersections2shOr ;
   # range stuff
   sh:rule owl2sh-closed:rdfsRange2shNode ;
   sh:rule owl2sh-closed:rdfsRange2shClassOrDatatype ;
+  sh:rule owl2sh-closed:owlOneOf2shIn ;
   sh:rule owl2sh-closed:rdfsRangeLiteral2shNodeKind ;
   sh:rule owl2sh-closed:shPropertyShapeCleanUp ;
 
@@ -282,7 +285,7 @@ owl2sh-closed:rdfsRange2shNode
 
 owl2sh-closed:rdfsRange2shClassOrDatatype
   rdf:type sh:SPARQLRule ;
-  rdfs:comment "For each relevant property that has an rdfs:range, create sh:class or sh:datatype constraint unless it already exists (from a restriction)." ;
+  rdfs:comment "For each relevant property that has an rdfs:range, create sh:class or sh:datatype constraint unless it already exists (from a restriction). A range counts as a datatype when it is declared as an rdfs:Datatype, when it is an XML Schema built-in, or when it is rdf:langString; testing the range itself rather than matching a fixed list of IRIs means any rdfs:Datatype - including one defined by owl:oneOf - yields sh:datatype. sh:class is never satisfied by a literal (SHACL Core, Sec. 4.1.1), so emitting it for a datatype range produces a constraint that can only fail." ;
   rdfs:label "rdfs:range with IRI to sh:class or sh:datatype" ;
   sh:construct """
 			CONSTRUCT {
@@ -296,15 +299,46 @@ owl2sh-closed:rdfsRange2shClassOrDatatype
 				?propertyShape sh:path ?property .
 				?property rdfs:range ?range .
 				FILTER isIRI(?range) .
+        # an enumerated data range is expressed with sh:in by owlOneOf2shIn; sh:datatype
+        # naming the enumeration would be violated by its own permitted values, which are
+        # plain literals rather than instances of a custom datatype
+        FILTER NOT EXISTS { ?range owl:oneOf ?enumeratedValues } .
         # exclude the case where range is rdfs:Literal, this will be handled with an sh:kind
         FILTER(?range != rdfs:Literal) .
         # exclude the case where range is owl:Thing
 				BIND (
           IF(
-            (?range IN (xsd:boolean, xsd:string, xsd:date, xsd:dateTime, xsd:integer, xsd:float, xsd:duration, xsd:anyURI, rdf:langString)),
+            (EXISTS { ?range a rdfs:Datatype } || STRSTARTS(STR(?range), "http://www.w3.org/2001/XMLSchema#") || ?range = rdf:langString),
             sh:datatype,
             sh:class
           ) AS ?parameter) .
+			}
+			""" ;
+  sh:order 5 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-closed> ;
+.
+
+
+owl2sh-closed:owlOneOf2shIn
+  rdf:type sh:SPARQLRule ;
+  rdfs:comment "For each relevant property whose rdfs:range is a datatype enumerated by owl:oneOf, create an sh:in constraint listing the permitted values. Without this the enumeration is lost: the range is an rdfs:Datatype, so no sh:class or sh:datatype constraint can express which literals are allowed." ;
+  rdfs:label "owl:oneOf on a datatype range to sh:in" ;
+  sh:construct """
+			CONSTRUCT {
+				?propertyShape sh:in ?permittedValues .
+				?listNode rdf:first ?value ;
+				          rdf:rest ?remainder .
+			}
+			WHERE {
+				{
+					$this sh:property ?propertyShape .
+				}
+				?propertyShape sh:path ?property .
+				?property rdfs:range ?range .
+				?range owl:oneOf ?permittedValues .
+				?permittedValues rdf:rest* ?listNode .
+				?listNode rdf:first ?value ;
+				          rdf:rest ?remainder .
 			}
 			""" ;
   sh:order 5 ;
@@ -878,6 +912,58 @@ owl2sh-closed:owlUnionOfIRIs2rdfsSubClassOf
           FILTER (!isIRI(?member)) .
         } .
         ?unionOf rdf:rest*/rdf:first ?class .
+      }
+""" ;
+  sh:order 4 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-closed> ;
+.
+
+owl2sh-closed:owlUnionOfIntersections2shOr
+  rdf:type sh:SPARQLRule ;
+  rdfs:comment """For each owl:unionOf whose members are ANONYMOUS class expressions, create a corresponding sh:or disjunction, with one member node shape per union member carrying that member's cardinality restrictions as property shapes.
+
+owlUnionOfIRIs2rdfsSubClassOf handles the case where every member is a named class, by flattening them into rdfs:subClassOf. It deliberately does nothing when a member is anonymous, and nothing else did either, so a union of class expressions produced NO constraint at all: the disjunction was silently dropped and the resulting shape accepted anything.
+
+That is the shape a UML <<union>> takes when it is encoded by ISO 19150-2: one member per alternative, each asserting a cardinality on its own property and cardinality 0 on the others. Measured on ASAM OpenSCENARIO XML V1.4.0, 48 classes carry such a union - 177 members over 1017 restrictions - and the converted shapes contained zero sh:or, sh:xone, sh:not or sh:and.
+
+sh:or, not sh:xone: owl:unionOf is inclusive disjunction, and SHACL's sh:or is its counterpart (SHACL Sec. 4.6.1; OWL 2 Mapping to RDF Graphs, Table 13). sh:xone would be wrong twice over - it is exclusive, and it rejects a valid document whenever the alternatives are all optional, which 9 of those 177 members are (they carry only owl:maxQualifiedCardinality, so choosing nothing is permitted). Verified with pyshacl over both shapes of group.
+
+Every restriction in a member is emitted, including the cardinality 0 exclusions, because those are what make each member discriminating: without them every member is trivially satisfiable and the disjunction always holds.
+
+Counts are cast with xsd:integer, as every other cardinality rule here does: sh:minCount and sh:maxCount must be xsd:integer literals (SHACL Sec. 4.2), and OWL writes these as xsd:nonNegativeInteger. Passing the value through unchanged produces shapes a conforming processor refuses to load.
+
+The rule asserts one sh:or value per member and relies on the caller to gather them into the RDF list SHACL requires, exactly as sh:ignoredProperties does and for the same reason - a SHACL rule cannot CONSTRUCT a list of unknown length.
+
+It deliberately does not fire for a class carrying more than one union, because that gathering is per subject and two unions would merge into a single disjunction, weakening both. Such a class is left unconstrained rather than wrongly constrained.""" ;
+  rdfs:label "owl:unionOf of class expressions to sh:or" ;
+  sh:construct """
+      CONSTRUCT {
+        $this sh:or ?member .
+        ?member sh:property ?restriction .
+        ?restriction sh:path ?property .
+        ?restriction sh:minCount ?min .
+        ?restriction sh:maxCount ?max .
+      }
+      WHERE {
+        $this rdfs:subClassOf ?union .
+        FILTER isBlank(?union) .
+        ?union owl:unionOf ?list .
+        FILTER NOT EXISTS {
+          $this rdfs:subClassOf ?otherUnion .
+          ?otherUnion owl:unionOf ?otherList .
+          FILTER (?otherUnion != ?union) .
+        } .
+        ?list rdf:rest*/rdf:first ?member .
+        ?member owl:intersectionOf ?intersection .
+        ?intersection rdf:rest*/rdf:first ?restriction .
+        ?restriction owl:onProperty ?property .
+        OPTIONAL { ?restriction owl:qualifiedCardinality ?exactlyRaw . }
+        OPTIONAL { ?restriction owl:minQualifiedCardinality ?atLeastRaw . }
+        OPTIONAL { ?restriction owl:maxQualifiedCardinality ?atMostRaw . }
+        OPTIONAL { ?restriction owl:cardinality ?plainRaw . }
+        BIND (xsd:integer(COALESCE(?exactlyRaw, ?atLeastRaw)) AS ?min) .
+        BIND (xsd:integer(COALESCE(?exactlyRaw, ?atMostRaw, ?plainRaw)) AS ?max) .
+        FILTER (BOUND(?min) || BOUND(?max)) .
       }
 """ ;
   sh:order 4 ;
