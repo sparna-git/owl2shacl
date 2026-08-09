@@ -1,0 +1,63 @@
+@prefix ex:            <http://example.org/ontology/test#> .
+@prefix owl:           <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:           <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:          <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:            <http://www.w3.org/ns/shacl#> .
+@prefix xsd:           <http://www.w3.org/2001/XMLSchema#> .
+
+# Expected output of the "closed" flavor for input.ttl AFTER this contribution.
+# (Illustrative reference: blank-node/prefix layout is Jena-dependent; the
+# meaningful assertions are the sh:minCount / sh:maxCount on the DATA properties.)
+#
+# Object property control: unchanged from before (already worked):
+ex:Road-Road.lane  rdf:type  sh:PropertyShape ;
+        sh:class     ex:Lane ;
+        sh:maxCount  1 ;
+        sh:minCount  1 ;
+        sh:path      ex:Road.lane .
+
+# Object property, owl:maxQualifiedCardinality 1 -> sh:maxCount 1. Also unchanged; it is
+# the sibling of ex:Road.speedLimit below, so the two show that each new onDataRange rule
+# fires exactly where its onClass counterpart does. In the "open" flavor neither of them
+# produces a count -- see verify.py for the per-flavor expectations.
+ex:Road-Road.junction
+        rdf:type     sh:PropertyShape ;
+        sh:class     ex:Lane ;
+        sh:maxCount  1 ;
+        sh:path      ex:Road.junction .
+
+# Data property, owl:qualifiedCardinality 1  -> NEW: sh:minCount 1 + sh:maxCount 1
+ex:Road-Road.name  rdf:type  sh:PropertyShape ;
+        sh:datatype  xsd:string ;
+        sh:maxCount  1 ;
+        sh:minCount  1 ;
+        sh:path      ex:Road.name .
+
+# Data property, owl:maxQualifiedCardinality 1  -> NEW: sh:maxCount 1
+ex:Road-Road.speedLimit
+        rdf:type     sh:PropertyShape ;
+        sh:datatype  xsd:integer ;
+        sh:maxCount  1 ;
+        sh:path      ex:Road.speedLimit .
+
+ex:Road  rdf:type             sh:NodeShape , rdfs:Class ;
+        sh:closed             true ;
+        sh:ignoredProperties  rdf:type ;
+        sh:property           ex:Road-Road.lane , ex:Road-Road.junction , ex:Road-Road.width , ex:Road-Road.name , ex:Road-Road.speedLimit .
+
+# Data property, owl:minQualifiedCardinality 1  -> NEW: sh:minCount 1
+ex:Road-Road.width  rdf:type  sh:PropertyShape ;
+        sh:datatype  xsd:integer ;
+        sh:minCount  1 ;
+        sh:path      ex:Road.width .
+
+# Data property whose qualifying datatype is NARROWER than its rdfs:range
+# (owl:onDataRange xsd:int, rdfs:range xsd:decimal). The qualification carries
+# information, so the pre-existing qualified rule fires and the new simple rule must not:
+# exactly one of the two applies to any given restriction. Unchanged by this contribution;
+# present so that a lost FILTER guard is caught from either direction.
+[]      rdf:type              sh:PropertyShape ;
+        sh:path               ex:Road.laneCount ;
+        sh:qualifiedMinCount  1 ;
+        sh:qualifiedMaxCount  1 ;
+        sh:qualifiedValueShape  [ sh:datatype xsd:int ] .
