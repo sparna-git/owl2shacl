@@ -68,13 +68,16 @@ owl2sh-closed:ClassShape
   sh:rule owl2sh-closed:owlMaxQualifiedCardinalityOnClass2shMaxCount ;
   sh:rule owl2sh-closed:owlMaxQualifiedCardinalityOnClass2shQualifiedMaxCount ;
   sh:rule owl2sh-closed:owlMaxQualifiedCardinalityOnDataRange2shQualifiedMaxCount ;
+  sh:rule owl2sh-closed:owlMaxQualifiedCardinalityOnDataRange2shMaxCount ;
   sh:rule owl2sh-closed:owlMinCardinality2shMinCount ;
   sh:rule owl2sh-closed:owlMinQualifiedCardinalityOnClass2shMinCount ;
   sh:rule owl2sh-closed:owlMinQualifiedCardinalityOnClass2shQualifiedMinCount ;
   sh:rule owl2sh-closed:owlMinQualifiedCardinalityOnDataRange2shQualifiedMinCount ;
+  sh:rule owl2sh-closed:owlMinQualifiedCardinalityOnDataRange2shMinCount ;
   sh:rule owl2sh-closed:owlQualifiedCardinalityOnClass2shMinMaxCount ;
   sh:rule owl2sh-closed:owlQualifiedCardinalityOnClass2shQualifiedMinMaxCount ;
   sh:rule owl2sh-closed:owlQualifiedCardinalityOnDataRange2shQualifiedMinMaxCount ;
+  sh:rule owl2sh-closed:owlQualifiedCardinalityOnDataRange2shMinMaxCount ;
   # quantifiers stuff
   sh:rule owl2sh-closed:owlHasValue2shHasValue ;
   sh:rule owl2sh-closed:owlSomeValuesFrom2shMinCount1 ;
@@ -84,6 +87,8 @@ owl2sh-closed:ClassShape
   
   # Turn UNIONS of IRIs into rdfs:subClassOf (so that it can be interpreted by SHACL validator I guess)
   sh:rule owl2sh-closed:owlUnionOfIRIs2rdfsSubClassOf ;
+  # Turn UNIONS of anonymous class expressions into an sh:or disjunction
+  sh:rule owl2sh-closed:owlUnionOfIntersections2shOr ;
   # range stuff
   sh:rule owl2sh-closed:rdfsRange2shNode ;
   sh:rule owl2sh-closed:rdfsRange2shClassOrDatatype ;
@@ -689,6 +694,95 @@ owl2sh-closed:owlQualifiedCardinalityOnDataRange2shQualifiedMinMaxCount
   sh:order 6 ;
   sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-closed> ;
 .
+owl2sh-closed:owlMaxQualifiedCardinalityOnDataRange2shMaxCount
+  rdf:type sh:SPARQLRule ;
+  rdfs:comment "Data-property counterpart of owlMaxQualifiedCardinalityOnClass2shMaxCount. For each owl:maxQualifiedCardinality restriction whose owl:onDataRange is an IRI identical to the property's rdfs:range, create a plain sh:maxCount. In OWL 2 a data property cardinality restriction uses owl:onDataRange exactly as an object property restriction uses owl:onClass (OWL 2 Web Ontology Language Structural Specification, Sec. 8.5 'Data Property Cardinality Restrictions'; Mapping to RDF Graphs, Sec. 3.2). When the qualifying datatype equals the property's global range (already mapped to sh:datatype by rdfsRange2shClassOrDatatype), the qualification is redundant, so - symmetric to the owl:onClass handling - it collapses to a plain sh:maxCount rather than sh:qualifiedMaxCount." ;
+  rdfs:label "owl:maxQualifiedCardinality with owl:onDataRange to sh:maxCount" ;
+  sh:construct """
+      PREFIX sh: <http://www.w3.org/ns/shacl#>
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+      PREFIX owl2sh-closed: <http://data.sparna.fr/ontologies/owl2sh-closed#>
+
+      CONSTRUCT {
+        ?propertyShape sh:maxCount ?maxCount .
+        # ?restriction owl2sh-closed:mappedTo ?propertyShape .
+      }
+      WHERE {
+        {
+          $this rdfs:subClassOf ?restriction .
+          ?restriction a owl:Restriction .
+          FILTER isBlank(?restriction) .
+        }
+        ?restriction owl:maxQualifiedCardinality ?raw .
+        ?restriction owl:onProperty ?property .
+        ?restriction owl:onDataRange ?onDataRange .
+        FILTER isIRI(?onDataRange) .
+        FILTER EXISTS { ?property rdfs:range ?onDataRange } .
+        BIND (xsd:integer(?raw) AS ?maxCount) .
+
+        BIND (owl2sh-closed:getPropertyShape(?property, $this) AS ?propertyShape) .
+      }
+      """ ;
+  sh:order 6 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-closed> ;
+.
+owl2sh-closed:owlMinQualifiedCardinalityOnDataRange2shMinCount
+  rdf:type sh:SPARQLRule ;
+  rdfs:comment "Data-property counterpart of owlMinQualifiedCardinalityOnClass2shMinCount. For each owl:minQualifiedCardinality restriction whose owl:onDataRange is an IRI identical to the property's rdfs:range, create a plain sh:minCount. In OWL 2 a data property cardinality restriction uses owl:onDataRange exactly as an object property restriction uses owl:onClass (OWL 2 Web Ontology Language Structural Specification, Sec. 8.5 'Data Property Cardinality Restrictions'; Mapping to RDF Graphs, Sec. 3.2). When the qualifying datatype equals the property's global range (already mapped to sh:datatype by rdfsRange2shClassOrDatatype), the qualification is redundant, so - symmetric to the owl:onClass handling - it collapses to a plain sh:minCount rather than sh:qualifiedMinCount." ;
+  rdfs:label "owl:minQualifiedCardinality with owl:onDataRange to sh:minCount" ;
+  sh:construct """
+      CONSTRUCT {
+        ?propertyShape sh:minCount ?minCount .
+        # ?restriction owl2sh-closed:mappedTo ?propertyShape .
+      }
+      WHERE {
+        {
+          $this rdfs:subClassOf ?restriction .
+          ?restriction a owl:Restriction .
+          FILTER isBlank(?restriction) .
+        }
+        ?restriction owl:minQualifiedCardinality ?raw .
+        ?restriction owl:onDataRange ?onDataRange .
+        ?restriction owl:onProperty ?property .
+        FILTER isIRI(?onDataRange) .
+        FILTER EXISTS { ?property rdfs:range ?onDataRange } .
+        BIND (xsd:integer(?raw) AS ?minCount) .
+        BIND (owl2sh-closed:getPropertyShape(?property, $this) AS ?propertyShape) .
+      }
+      """ ;
+  sh:order 6 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-closed> ;
+.
+owl2sh-closed:owlQualifiedCardinalityOnDataRange2shMinMaxCount
+  rdf:type sh:SPARQLRule ;
+  rdfs:comment "Data-property counterpart of owlQualifiedCardinalityOnClass2shMinMaxCount. For each owl:qualifiedCardinality restriction whose owl:onDataRange is an IRI identical to the property's rdfs:range, create plain sh:minCount and sh:maxCount. In OWL 2 a data property cardinality restriction uses owl:onDataRange exactly as an object property restriction uses owl:onClass (OWL 2 Web Ontology Language Structural Specification, Sec. 8.5 'Data Property Cardinality Restrictions'; Mapping to RDF Graphs, Sec. 3.2). When the qualifying datatype equals the property's global range (already mapped to sh:datatype by rdfsRange2shClassOrDatatype), the qualification is redundant, so - symmetric to the owl:onClass handling - it collapses to plain sh:minCount/sh:maxCount rather than sh:qualifiedMinCount/sh:qualifiedMaxCount." ;
+  rdfs:label "owl:qualifiedCardinality with owl:onDataRange to sh:max/minCount" ;
+  sh:construct """
+      CONSTRUCT {
+        ?propertyShape sh:maxCount ?count .
+        ?propertyShape sh:minCount ?count .
+        # ?restriction owl2sh-closed:mappedTo ?propertyShape .
+      }
+      WHERE {
+        {
+          $this rdfs:subClassOf ?restriction .
+          ?restriction a owl:Restriction .
+          FILTER isBlank(?restriction) .
+        }
+        ?restriction owl:qualifiedCardinality ?raw .
+        ?restriction owl:onDataRange ?onDataRange .
+        ?restriction owl:onProperty ?property .
+        FILTER isIRI(?onDataRange) .
+        FILTER EXISTS { ?property rdfs:range ?onDataRange } .
+        BIND (xsd:integer(?raw) AS ?count) .
+        BIND (owl2sh-closed:getPropertyShape(?property, $this) AS ?propertyShape) .
+      }
+      """ ;
+  sh:order 6 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-closed> ;
+.
 
 
 owl2sh-closed:owlHasValue2shHasValue
@@ -818,6 +912,58 @@ owl2sh-closed:owlUnionOfIRIs2rdfsSubClassOf
           FILTER (!isIRI(?member)) .
         } .
         ?unionOf rdf:rest*/rdf:first ?class .
+      }
+""" ;
+  sh:order 4 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-closed> ;
+.
+
+owl2sh-closed:owlUnionOfIntersections2shOr
+  rdf:type sh:SPARQLRule ;
+  rdfs:comment """For each owl:unionOf whose members are ANONYMOUS class expressions, create a corresponding sh:or disjunction, with one member node shape per union member carrying that member's cardinality restrictions as property shapes.
+
+owlUnionOfIRIs2rdfsSubClassOf handles the case where every member is a named class, by flattening them into rdfs:subClassOf. It deliberately does nothing when a member is anonymous, and nothing else did either, so a union of class expressions produced NO constraint at all: the disjunction was silently dropped and the resulting shape accepted anything.
+
+That is the shape a UML <<union>> takes when it is encoded by ISO 19150-2: one member per alternative, each asserting a cardinality on its own property and cardinality 0 on the others. Measured on ASAM OpenSCENARIO XML V1.4.0, 48 classes carry such a union - 177 members over 1017 restrictions - and the converted shapes contained zero sh:or, sh:xone, sh:not or sh:and.
+
+sh:or, not sh:xone: owl:unionOf is inclusive disjunction, and SHACL's sh:or is its counterpart (SHACL Sec. 4.6.1; OWL 2 Mapping to RDF Graphs, Table 13). sh:xone would be wrong twice over - it is exclusive, and it rejects a valid document whenever the alternatives are all optional, which 9 of those 177 members are (they carry only owl:maxQualifiedCardinality, so choosing nothing is permitted). Verified with pyshacl over both shapes of group.
+
+Every restriction in a member is emitted, including the cardinality 0 exclusions, because those are what make each member discriminating: without them every member is trivially satisfiable and the disjunction always holds.
+
+Counts are cast with xsd:integer, as every other cardinality rule here does: sh:minCount and sh:maxCount must be xsd:integer literals (SHACL Sec. 4.2), and OWL writes these as xsd:nonNegativeInteger. Passing the value through unchanged produces shapes a conforming processor refuses to load.
+
+The rule asserts one sh:or value per member and relies on the caller to gather them into the RDF list SHACL requires, exactly as sh:ignoredProperties does and for the same reason - a SHACL rule cannot CONSTRUCT a list of unknown length.
+
+It deliberately does not fire for a class carrying more than one union, because that gathering is per subject and two unions would merge into a single disjunction, weakening both. Such a class is left unconstrained rather than wrongly constrained.""" ;
+  rdfs:label "owl:unionOf of class expressions to sh:or" ;
+  sh:construct """
+      CONSTRUCT {
+        $this sh:or ?member .
+        ?member sh:property ?restriction .
+        ?restriction sh:path ?property .
+        ?restriction sh:minCount ?min .
+        ?restriction sh:maxCount ?max .
+      }
+      WHERE {
+        $this rdfs:subClassOf ?union .
+        FILTER isBlank(?union) .
+        ?union owl:unionOf ?list .
+        FILTER NOT EXISTS {
+          $this rdfs:subClassOf ?otherUnion .
+          ?otherUnion owl:unionOf ?otherList .
+          FILTER (?otherUnion != ?union) .
+        } .
+        ?list rdf:rest*/rdf:first ?member .
+        ?member owl:intersectionOf ?intersection .
+        ?intersection rdf:rest*/rdf:first ?restriction .
+        ?restriction owl:onProperty ?property .
+        OPTIONAL { ?restriction owl:qualifiedCardinality ?exactlyRaw . }
+        OPTIONAL { ?restriction owl:minQualifiedCardinality ?atLeastRaw . }
+        OPTIONAL { ?restriction owl:maxQualifiedCardinality ?atMostRaw . }
+        OPTIONAL { ?restriction owl:cardinality ?plainRaw . }
+        BIND (xsd:integer(COALESCE(?exactlyRaw, ?atLeastRaw)) AS ?min) .
+        BIND (xsd:integer(COALESCE(?exactlyRaw, ?atMostRaw, ?plainRaw)) AS ?max) .
+        FILTER (BOUND(?min) || BOUND(?max)) .
       }
 """ ;
   sh:order 4 ;

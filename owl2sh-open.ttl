@@ -69,13 +69,16 @@ owl2sh-open:ClassShape
   sh:rule owl2sh-open:owlMaxQualifiedCardinalityOnClass2shMaxCount ;
   sh:rule owl2sh-open:owlMaxQualifiedCardinalityOnClass2shQualifiedMaxCount ;
   sh:rule owl2sh-open:owlMaxQualifiedCardinalityOnDataRange2shQualifiedMaxCount ;
+  sh:rule owl2sh-open:owlMaxQualifiedCardinalityOnDataRange2shMaxCount ;
   sh:rule owl2sh-open:owlMinCardinality2shMinCount ;
   sh:rule owl2sh-open:owlMinQualifiedCardinalityOnClass2shMinCount ;
   sh:rule owl2sh-open:owlMinQualifiedCardinalityOnClass2shQualifiedMinCount ;
   sh:rule owl2sh-open:owlMinQualifiedCardinalityOnDataRange2shQualifiedMinCount ;
+  sh:rule owl2sh-open:owlMinQualifiedCardinalityOnDataRange2shMinCount ;
   sh:rule owl2sh-open:owlQualifiedCardinalityOnClass2shMinMaxCount ;
   sh:rule owl2sh-open:owlQualifiedCardinalityOnClass2shQualifiedMinMaxCount ;
   sh:rule owl2sh-open:owlQualifiedCardinalityOnDataRange2shQualifiedMinMaxCount ;
+  sh:rule owl2sh-open:owlQualifiedCardinalityOnDataRange2shMinMaxCount ;
   # quantifiers stuff
   sh:rule owl2sh-open:owlHasValue2shHasValue ;
   sh:rule owl2sh-open:owlSomeValuesFrom2shMinCount1 ;
@@ -465,6 +468,7 @@ owl2sh-open:owlMaxQualifiedCardinalityOnDataRange2shQualifiedMaxCount
         ?restriction owl:onProperty ?property .
         ?restriction owl:onDataRange ?onDataRange .
         FILTER isIRI(?onDataRange) .
+        FILTER NOT EXISTS { ?property rdfs:range ?onDataRange } .
         BIND (xsd:integer(?raw) AS ?maxCount) .
         BIND (BNODE() AS ?propertyShape) .
         BIND (BNODE() AS ?valueShape) .
@@ -579,6 +583,7 @@ owl2sh-open:owlMinQualifiedCardinalityOnDataRange2shQualifiedMinCount
         ?restriction owl:onDataRange ?onDataRange .
         ?restriction owl:onProperty ?property .
         FILTER isIRI(?onDataRange) .
+        FILTER NOT EXISTS { ?property rdfs:range ?onDataRange } .
         BIND (xsd:integer(?raw) AS ?minCount) .
         BIND (BNODE() AS ?propertyShape) .
         BIND (BNODE() AS ?valueShape) .
@@ -672,9 +677,99 @@ owl2sh-open:owlQualifiedCardinalityOnDataRange2shQualifiedMinMaxCount
         ?restriction owl:onDataRange ?onDataRange .
         ?restriction owl:onProperty ?property .
         FILTER isIRI(?onDataRange) .
+        FILTER NOT EXISTS { ?property rdfs:range ?onDataRange } .
         BIND (xsd:integer(?raw) AS ?count) .
         BIND (BNODE() AS ?propertyShape) .
         BIND (BNODE() AS ?valueShape) .
+      }
+      """ ;
+  sh:order 6 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
+.
+owl2sh-open:owlMaxQualifiedCardinalityOnDataRange2shMaxCount
+  rdf:type sh:SPARQLRule ;
+  rdfs:comment "Data-property counterpart of owlMaxQualifiedCardinalityOnClass2shMaxCount. For each owl:maxQualifiedCardinality restriction whose owl:onDataRange is an IRI identical to the property's rdfs:range, create a plain sh:maxCount. In OWL 2 a data property cardinality restriction uses owl:onDataRange exactly as an object property restriction uses owl:onClass (OWL 2 Web Ontology Language Structural Specification, Sec. 8.5 'Data Property Cardinality Restrictions'; Mapping to RDF Graphs, Sec. 3.2). When the qualifying datatype equals the property's global range (already mapped to sh:datatype by rdfsRange2shClassOrDatatype), the qualification is redundant, so - symmetric to the owl:onClass handling - it collapses to a plain sh:maxCount rather than sh:qualifiedMaxCount." ;
+  rdfs:label "owl:maxQualifiedCardinality with owl:onDataRange to sh:maxCount" ;
+  sh:construct """
+      PREFIX sh: <http://www.w3.org/ns/shacl#>
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+      PREFIX owl2sh-open: <http://sparna.fr/ontologies/owl2sh-open#>
+
+      CONSTRUCT {
+        ?propertyShape sh:maxCount ?maxCount .
+        # ?restriction owl2sh-open:mappedTo ?propertyShape .
+      }
+      WHERE {
+        {
+          $this rdfs:subClassOf ?restriction .
+          ?restriction a owl:Restriction .
+          FILTER isBlank(?restriction) .
+        }
+        ?restriction owl:maxQualifiedCardinality ?raw .
+        ?restriction owl:onProperty ?property .
+        ?restriction owl:onDataRange ?onDataRange .
+        FILTER isIRI(?onDataRange) .
+        FILTER EXISTS { ?property rdfs:range ?onDataRange } .
+        BIND (xsd:integer(?raw) AS ?maxCount) .
+
+        BIND (owl2sh-open:getPropertyShape(?property, $this) AS ?propertyShape) .
+      }
+      """ ;
+  sh:order 6 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
+.
+owl2sh-open:owlMinQualifiedCardinalityOnDataRange2shMinCount
+  rdf:type sh:SPARQLRule ;
+  rdfs:comment "Data-property counterpart of owlMinQualifiedCardinalityOnClass2shMinCount. For each owl:minQualifiedCardinality restriction whose owl:onDataRange is an IRI identical to the property's rdfs:range, create a plain sh:minCount. In OWL 2 a data property cardinality restriction uses owl:onDataRange exactly as an object property restriction uses owl:onClass (OWL 2 Web Ontology Language Structural Specification, Sec. 8.5 'Data Property Cardinality Restrictions'; Mapping to RDF Graphs, Sec. 3.2). When the qualifying datatype equals the property's global range (already mapped to sh:datatype by rdfsRange2shClassOrDatatype), the qualification is redundant, so - symmetric to the owl:onClass handling - it collapses to a plain sh:minCount rather than sh:qualifiedMinCount." ;
+  rdfs:label "owl:minQualifiedCardinality with owl:onDataRange to sh:minCount" ;
+  sh:construct """
+      CONSTRUCT {
+        ?propertyShape sh:minCount ?minCount .
+        # ?restriction owl2sh-open:mappedTo ?propertyShape .
+      }
+      WHERE {
+        {
+          $this rdfs:subClassOf ?restriction .
+          ?restriction a owl:Restriction .
+          FILTER isBlank(?restriction) .
+        }
+        ?restriction owl:minQualifiedCardinality ?raw .
+        ?restriction owl:onDataRange ?onDataRange .
+        ?restriction owl:onProperty ?property .
+        FILTER isIRI(?onDataRange) .
+        FILTER EXISTS { ?property rdfs:range ?onDataRange } .
+        BIND (xsd:integer(?raw) AS ?minCount) .
+        BIND (owl2sh-open:getPropertyShape(?property, $this) AS ?propertyShape) .
+      }
+      """ ;
+  sh:order 6 ;
+  sh:prefixes <http://data.sparna.fr/ontologies/owl2sh-open> ;
+.
+owl2sh-open:owlQualifiedCardinalityOnDataRange2shMinMaxCount
+  rdf:type sh:SPARQLRule ;
+  rdfs:comment "Data-property counterpart of owlQualifiedCardinalityOnClass2shMinMaxCount. For each owl:qualifiedCardinality restriction whose owl:onDataRange is an IRI identical to the property's rdfs:range, create plain sh:minCount and sh:maxCount. In OWL 2 a data property cardinality restriction uses owl:onDataRange exactly as an object property restriction uses owl:onClass (OWL 2 Web Ontology Language Structural Specification, Sec. 8.5 'Data Property Cardinality Restrictions'; Mapping to RDF Graphs, Sec. 3.2). When the qualifying datatype equals the property's global range (already mapped to sh:datatype by rdfsRange2shClassOrDatatype), the qualification is redundant, so - symmetric to the owl:onClass handling - it collapses to plain sh:minCount/sh:maxCount rather than sh:qualifiedMinCount/sh:qualifiedMaxCount." ;
+  rdfs:label "owl:qualifiedCardinality with owl:onDataRange to sh:max/minCount" ;
+  sh:construct """
+      CONSTRUCT {
+        ?propertyShape sh:maxCount ?count .
+        ?propertyShape sh:minCount ?count .
+        # ?restriction owl2sh-open:mappedTo ?propertyShape .
+      }
+      WHERE {
+        {
+          $this rdfs:subClassOf ?restriction .
+          ?restriction a owl:Restriction .
+          FILTER isBlank(?restriction) .
+        }
+        ?restriction owl:qualifiedCardinality ?raw .
+        ?restriction owl:onDataRange ?onDataRange .
+        ?restriction owl:onProperty ?property .
+        FILTER isIRI(?onDataRange) .
+        FILTER EXISTS { ?property rdfs:range ?onDataRange } .
+        BIND (xsd:integer(?raw) AS ?count) .
+        BIND (owl2sh-open:getPropertyShape(?property, $this) AS ?propertyShape) .
       }
       """ ;
   sh:order 6 ;

@@ -13,7 +13,7 @@ Exit status is 0 when every checked flavor matches its expectation below, 1 othe
 
 Why every flavor expects the same result
 ----------------------------------------
-Unlike count constraints, the range decision does not
+Unlike the count constraints in ``../onDataRange-cardinality``, the range decision does not
 depend on how a flavor treats optional properties: a property's ``rdfs:range`` yields either
 a class constraint or a datatype constraint in all three. The three flavors previously
 *disagreed* only because each carried its own hardcoded list of datatype IRIs - ``closed``
@@ -21,9 +21,9 @@ omitted ``xsd:double`` while ``open`` and ``semi-closed`` included it, and ``sem
 listed ``xsd:integer`` twice. Testing the range itself removes the divergence, so the
 expectation is shared and a future drift between flavors fails the check.
 
-``owl2sh-original.ttl`` is out of scope: it is the unwired historical import of TopQuadrant's
-rules, is not one of the three documented flavors, and is not offered by the CLI or the hosted
-converter. See the README.
+``owl2sh-original.ttl`` is out of scope for the same reason as in the sibling test: it is the
+unwired historical import of TopQuadrant's rules, is not one of the three documented flavors,
+and is not offered by the CLI or the hosted converter. See the README.
 """
 
 from __future__ import annotations

@@ -190,11 +190,10 @@ Three further rules — `owlSomeValuesFromAllValuesFrom2dashHasValueWithClass`,
 `owlSomeValuesFromIRI2dashHasValueWithClass` and `owlAllValuesFrom2shClassOrDatatype` — carry
 the same hardcoded list against `?someValuesFrom` / `?allValuesFrom`. They are left unchanged:
 the ontology that surfaced this uses neither `owl:someValuesFrom` nor `owl:allValuesFrom`, so
-there is no fixture here that would exercise them, and a ruleset change that nothing here can
-execute should not be added blind. Say the word and they can be brought in line with a fixture
-of their own.
+there is no fixture here that would exercise them, and the sibling test's README sets the
+precedent that a ruleset change nothing can execute should not be added blind. Say the word and
+they can be brought in line with a fixture of their own.
 
-`owl2sh-original.ttl` is untouched: it is the unwired historical import of TopQuadrant's rules,
-is not one of the three documented flavors (the README documents open, semi-closed and closed),
-and is offered by neither the `shacl-play` CLI nor the hosted converter. Changing a ruleset that
-nothing consumes and no available tool can execute would add unverifiable code.
+`owl2sh-original.ttl` is untouched for the reason given in `../onDataRange-cardinality/README.md`:
+it is the unwired historical import of TopQuadrant's rules, is not one of the three documented
+flavors, and is offered by neither the CLI nor the hosted converter.
