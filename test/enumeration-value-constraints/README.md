@@ -179,7 +179,7 @@ so a dangling or truncated list is a failure rather than an opaque node identifi
 
 ### Why all three flavors share one expectation
 
-Unlike the count constraints in `../onDataRange-cardinality`, the range decision does not
+Unlike the count constraints proposed in [#7](https://github.com/sparna-git/owl2shacl/pull/7), the range decision does not
 depend on how a flavor treats optional properties. The flavors differed here only because each
 carried its own list of datatype IRIs. Testing the range itself removes the divergence, so the
 expectation is shared and any future drift between flavors fails the check.
