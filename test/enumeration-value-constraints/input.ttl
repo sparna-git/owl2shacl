@@ -8,15 +8,33 @@
 # translation of an enumerated data range into sh:in.
 #
 # Every property below is reached through rdfs:domain, so the shapes come from
-# CreateNodeShapesAndPropertyShapesFromMatchingDomains and the only rule under test is
-# the range rule. See ../README.md and expected/owl2sh-closed.ttl.
+# CreateNodeShapesAndPropertyShapesFromMatchingDomains and the only rules under test are
+# the range rules. See README.md and expected/owl2sh-closed.ttl.
 
 ex:Ontology a owl:Ontology .
 
-# An enumerated data range: rdfs:Datatype defined by owl:oneOf over literals. This is what
-# OWL 2 calls a DataOneOf data range (Structural Specification, Sec. 7.4).
+# An enumerated datatype: owl:oneOf over literals directly on a named rdfs:Datatype. OWL 2
+# writes the enumeration of literals, DataOneOf (Structural Specification, Sec. 7.4), on an
+# anonymous rdfs:Datatype, but this direct form is common, for example in the output of
+# ShapeChange's rule-owl-cls-iso191502Enumeration.
 ex:ColourEnum a rdfs:Datatype ;
     owl:oneOf ( "red" "green" "blue" ) .
+
+# The same kind of enumeration as an OWL 2 datatype definition,
+# DatatypeDefinition( ex:FuelEnum DataOneOf( ... ) ): the named datatype is
+# owl:equivalentClass to an anonymous rdfs:Datatype that carries the owl:oneOf list (Mapping
+# to RDF Graphs, Sec. 2.1, Table 1). OWL 2 DL requires a datatype definition for every
+# datatype that is neither rdfs:Literal nor in the OWL 2 datatype map (Structural
+# Specification, Sec. 11.2).
+ex:FuelEnum a rdfs:Datatype ;
+    owl:equivalentClass [ a rdfs:Datatype ; owl:oneOf ( "petrol" "diesel" "electric" ) ] .
+
+# An enumerated class, ObjectOneOf through owl:equivalentClass (Structural Specification,
+# Sec. 8.1.4). It is a class, not a datatype, so a property ranging over it keeps sh:class.
+ex:Size a owl:Class ;
+    owl:equivalentClass [ a owl:Class ; owl:oneOf ( ex:small ex:large ) ] .
+ex:small a owl:NamedIndividual , ex:Size .
+ex:large a owl:NamedIndividual , ex:Size .
 
 # A real class, so the sh:class branch of the decision is still exercised.
 ex:Person a owl:Class .
@@ -27,6 +45,14 @@ ex:Car a owl:Class .
 # satisfied by a literal, and sh:datatype naming the enumeration would be violated by the
 # enumeration's own members, which are plain literals. Only sh:in expresses this.
 ex:Car.colour a owl:DatatypeProperty ; rdfs:domain ex:Car ; rdfs:range ex:ColourEnum .
+
+# The same case, with the range enumerated through a datatype definition.
+ex:Car.fuel a owl:DatatypeProperty ; rdfs:domain ex:Car ; rdfs:range ex:FuelEnum .
+
+# The same case, with the range written as OWL 2 writes DataOneOf itself: an anonymous
+# rdfs:Datatype with owl:oneOf (Mapping to RDF Graphs, Sec. 2.1, Table 1).
+ex:Car.gear a owl:DatatypeProperty ; rdfs:domain ex:Car ;
+    rdfs:range [ a rdfs:Datatype ; owl:oneOf ( "neutral" "drive" "reverse" ) ] .
 
 # xsd datatypes that were absent from the hardcoded allow-list and so received sh:class.
 # xsd:double is the sharpest case: it is listed in the open and semi-closed rulesets but
@@ -39,3 +65,6 @@ ex:Car.name a owl:DatatypeProperty ; rdfs:domain ex:Car ; rdfs:range xsd:string 
 
 # Control: an object property whose range is a class. Must remain sh:class.
 ex:Car.owner a owl:ObjectProperty ; rdfs:domain ex:Car ; rdfs:range ex:Person .
+
+# Control: an object property whose range is an enumerated class. Must remain sh:class.
+ex:Car.size a owl:ObjectProperty ; rdfs:domain ex:Car ; rdfs:range ex:Size .

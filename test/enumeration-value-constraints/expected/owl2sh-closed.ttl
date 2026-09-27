@@ -20,9 +20,21 @@ ex:Car-Car.colour  rdf:type  sh:PropertyShape ;
         sh:in     ( "red" "green" "blue" ) ;
         sh:path   ex:Car.colour .
 
+ex:Car-Car.fuel  rdf:type  sh:PropertyShape ;
+        sh:in     ( "petrol" "diesel" "electric" ) ;
+        sh:path   ex:Car.fuel .
+
+ex:Car-Car.gear  rdf:type  sh:PropertyShape ;
+        sh:in     ( "neutral" "drive" "reverse" ) ;
+        sh:path   ex:Car.gear .
+
 ex:Car-Car.owner  rdf:type  sh:PropertyShape ;
         sh:class  ex:Person ;
         sh:path   ex:Car.owner .
+
+ex:Car-Car.size  rdf:type  sh:PropertyShape ;
+        sh:class  ex:Size ;
+        sh:path   ex:Car.size .
 
 ex:Car-Car.mass  rdf:type  sh:PropertyShape ;
         sh:datatype  xsd:double ;
@@ -31,7 +43,7 @@ ex:Car-Car.mass  rdf:type  sh:PropertyShape ;
 ex:Car  rdf:type              rdfs:Class , sh:NodeShape ;
         sh:closed             true ;
         sh:ignoredProperties  rdf:type ;
-        sh:property           ex:Car-Car.colour , ex:Car-Car.mass , ex:Car-Car.owner , ex:Car-Car.doors , ex:Car-Car.name .
+        sh:property           ex:Car-Car.colour , ex:Car-Car.fuel , ex:Car-Car.gear , ex:Car-Car.mass , ex:Car-Car.owner , ex:Car-Car.size , ex:Car-Car.doors , ex:Car-Car.name .
 
 ex:Car-Car.name  rdf:type  sh:PropertyShape ;
         sh:datatype  xsd:string ;

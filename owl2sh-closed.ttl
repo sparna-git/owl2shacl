@@ -285,7 +285,7 @@ owl2sh-closed:rdfsRange2shNode
 
 owl2sh-closed:rdfsRange2shClassOrDatatype
   rdf:type sh:SPARQLRule ;
-  rdfs:comment "For each relevant property that has an rdfs:range, create sh:class or sh:datatype constraint unless it already exists (from a restriction). A range counts as a datatype when it is declared as an rdfs:Datatype, when it is an XML Schema built-in, or when it is rdf:langString; testing the range itself rather than matching a fixed list of IRIs means any rdfs:Datatype - including one defined by owl:oneOf - yields sh:datatype. sh:class is never satisfied by a literal (SHACL Core, Sec. 4.1.1), so emitting it for a datatype range produces a constraint that can only fail." ;
+  rdfs:comment "For each relevant property that has an rdfs:range, create sh:class or sh:datatype constraint unless it already exists (from a restriction). A range counts as a datatype when it is declared as an rdfs:Datatype, when it is an XML Schema built-in, or when it is rdf:langString; testing the range itself rather than matching a fixed list of IRIs means any rdfs:Datatype yields sh:datatype, except an enumerated one, which owlOneOf2shIn expresses with sh:in. sh:class is never satisfied by a literal (SHACL Core, Sec. 4.1.1), so emitting it for a datatype range produces a constraint that can only fail." ;
   rdfs:label "rdfs:range with IRI to sh:class or sh:datatype" ;
   sh:construct """
 			CONSTRUCT {
@@ -302,7 +302,14 @@ owl2sh-closed:rdfsRange2shClassOrDatatype
         # an enumerated data range is expressed with sh:in by owlOneOf2shIn; sh:datatype
         # naming the enumeration would be violated by its own permitted values, which are
         # plain literals rather than instances of a custom datatype
-        FILTER NOT EXISTS { ?range owl:oneOf ?enumeratedValues } .
+        # the list is on the range itself or, when the range is defined by an OWL 2 datatype
+        # definition, on the rdfs:Datatype that the range is owl:equivalentClass to
+        FILTER NOT EXISTS {
+          { ?range owl:oneOf ?enumeratedValues }
+          UNION
+          { ?range owl:equivalentClass ?enumeratedRange .
+            ?enumeratedRange a rdfs:Datatype ; owl:oneOf ?enumeratedValues . }
+        } .
         # exclude the case where range is rdfs:Literal, this will be handled with an sh:kind
         FILTER(?range != rdfs:Literal) .
         # exclude the case where range is owl:Thing
@@ -321,7 +328,7 @@ owl2sh-closed:rdfsRange2shClassOrDatatype
 
 owl2sh-closed:owlOneOf2shIn
   rdf:type sh:SPARQLRule ;
-  rdfs:comment "For each relevant property whose rdfs:range is a datatype enumerated by owl:oneOf, create an sh:in constraint listing the permitted values. Without this the enumeration is lost: the range is an rdfs:Datatype, so no sh:class or sh:datatype constraint can express which literals are allowed." ;
+  rdfs:comment "For each relevant property whose rdfs:range is a datatype enumerated by owl:oneOf, create an sh:in constraint listing the permitted values. The owl:oneOf list is either on the range itself or, when the range is defined by an OWL 2 datatype definition DatatypeDefinition( DT DataOneOf( ... ) ), on the rdfs:Datatype that the range is owl:equivalentClass to, which a datatype definition writes as an anonymous node (OWL 2 Structural Specification, Sec. 9.4; Mapping to RDF Graphs, Sec. 2.1, Table 1). An owl:equivalentClass to an enumerated owl:Class is not followed, so a range defined that way stays sh:class. Without this the enumeration is lost: the range is an rdfs:Datatype, so no sh:class or sh:datatype constraint can express which literals are allowed." ;
   rdfs:label "owl:oneOf on a datatype range to sh:in" ;
   sh:construct """
 			CONSTRUCT {
@@ -335,7 +342,10 @@ owl2sh-closed:owlOneOf2shIn
 				}
 				?propertyShape sh:path ?property .
 				?property rdfs:range ?range .
-				?range owl:oneOf ?permittedValues .
+				{ ?range owl:oneOf ?permittedValues }
+				UNION
+				{ ?range owl:equivalentClass ?dataRange .
+				  ?dataRange a rdfs:Datatype ; owl:oneOf ?permittedValues . }
 				?permittedValues rdf:rest* ?listNode .
 				?listNode rdf:first ?value ;
 				          rdf:rest ?remainder .
