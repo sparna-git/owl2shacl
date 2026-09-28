@@ -46,6 +46,12 @@ EXPECTED_ALL = {
     # the case under test: an enumerated data range becomes sh:in and nothing else. A
     # sh:datatype naming ex:ColourEnum would be violated by "red", which is an xsd:string.
     ("Car.colour", "in", "red|green|blue"),
+    # the same, with the enumeration written as an OWL 2 datatype definition: the named
+    # datatype is owl:equivalentClass to an anonymous rdfs:Datatype that carries owl:oneOf
+    ("Car.fuel", "in", "petrol|diesel|electric"),
+    # the same, with the range an anonymous rdfs:Datatype carrying owl:oneOf, which is how
+    # OWL 2 writes DataOneOf itself
+    ("Car.gear", "in", "neutral|drive|reverse"),
     # xsd:double was listed as a datatype by open and semi-closed but not by closed
     ("Car.mass", "datatype", "http://www.w3.org/2001/XMLSchema#double"),
     # xsd:nonNegativeInteger was on no flavor's list, so every flavor emitted sh:class
@@ -54,7 +60,15 @@ EXPECTED_ALL = {
     ("Car.name", "datatype", "http://www.w3.org/2001/XMLSchema#string"),
     # control: an object property whose range is a class, must remain sh:class
     ("Car.owner", "class", "http://example.org/ontology/test#Person"),
+    # control: the range is an enumerated class, owl:equivalentClass to an ObjectOneOf. Only
+    # a datatype definition is followed to its owl:oneOf, so this must remain sh:class
+    ("Car.size", "class", "http://example.org/ontology/test#Size"),
 }
+
+#: Constraints of which a shape has at most one value: sh:in (SHACL Core, Sec. 4.8.3) and
+#: sh:datatype (Sec. 4.1.2). Two values - for instance two sh:in lists for one enumeration -
+#: collapse into one entry of the set above, so they are counted separately.
+SINGLE_VALUED = ("in", "datatype")
 
 EXPECTED = {
     "owl2sh-closed": EXPECTED_ALL,
@@ -88,6 +102,21 @@ def range_constraints(graph) -> set[tuple[str, str, str]]:
     return found
 
 
+def repeated_single_valued(graph) -> list[str]:
+    """Report every property shape with more than one value for a constraint in SINGLE_VALUED."""
+    from rdflib import URIRef
+
+    sh = "http://www.w3.org/ns/shacl#"
+    repeated = []
+    for shape in set(graph.subjects(URIRef(sh + "path"), None)):
+        for local in SINGLE_VALUED:
+            values = list(graph.objects(shape, URIRef(sh + local)))
+            if len(values) > 1:
+                path = graph.value(shape, URIRef(sh + "path"))
+                repeated.append(f"{str(path).split('#')[-1]} has {len(values)} values for sh:{local}")
+    return sorted(repeated)
+
+
 def check(flavor: str) -> bool:
     from pyshacl import validate
     from rdflib import Graph
@@ -97,12 +126,15 @@ def check(flavor: str) -> bool:
     validate(data, shacl_graph=rules, advanced=True, inplace=True, do_owl_imports=False)
 
     produced, expected = range_constraints(data), EXPECTED[flavor]
-    ok = produced == expected
+    repeated = repeated_single_valued(data)
+    ok = produced == expected and not repeated
     print(f"{'PASS' if ok else 'FAIL'}  {flavor}")
     for constraint in sorted(expected - produced):
         print(f"        missing: {constraint}")
     for constraint in sorted(produced - expected):
         print(f"        unexpected: {constraint}")
+    for problem in repeated:
+        print(f"        repeated: {problem}")
     return ok
 
 
