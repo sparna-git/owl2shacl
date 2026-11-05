@@ -1,0 +1,24 @@
+@prefix ex:   <http://example.org/ontology/test#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# owl:FunctionalProperty gives sh:maxCount 1 unless an OWL cardinality restriction
+# on the same property already sets the count. See README.md.
+
+ex:Ontology a owl:Ontology .
+
+# Road has a cardinality restriction on Road.length only: Road.name, functional,
+# must still get sh:maxCount 1.
+ex:Road a owl:Class ;
+    rdfs:subClassOf [ a owl:Restriction ; owl:onProperty ex:Road.length ; owl:cardinality 1 ] .
+ex:Road.name   a owl:DatatypeProperty , owl:FunctionalProperty ; rdfs:domain ex:Road ; rdfs:range xsd:string .
+ex:Road.length a owl:DatatypeProperty ; rdfs:domain ex:Road ; rdfs:range xsd:integer .
+
+# Bridge inherits that restriction: Bridge.name must get sh:maxCount 1 too.
+ex:Bridge a owl:Class ; rdfs:subClassOf ex:Road .
+ex:Bridge.name a owl:DatatypeProperty , owl:FunctionalProperty ; rdfs:domain ex:Bridge ; rdfs:range xsd:string .
+
+# Control: no restriction at all, so sh:maxCount 1 before and after the fix.
+ex:Junction a owl:Class .
+ex:Junction.name a owl:DatatypeProperty , owl:FunctionalProperty ; rdfs:domain ex:Junction ; rdfs:range xsd:string .

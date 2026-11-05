@@ -251,6 +251,7 @@ owl2sh-closed:owlFunctionalProperty2shMaxCount1
           $this rdfs:subClassOf* ?class .
           ?class rdfs:subClassOf ?restriction .
           ?restriction a owl:Restriction .
+          ?restriction owl:onProperty ?property .
           ?restriction owl:maxCardinality|owl:cardinality ?any .
         }
       }
