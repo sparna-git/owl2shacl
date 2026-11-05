@@ -243,6 +243,7 @@ owl2sh-open:owlFunctionalProperty2shMaxCount1
           $this rdfs:subClassOf* ?class .
           ?class rdfs:subClassOf ?restriction .
           ?restriction a owl:Restriction .
+          ?restriction owl:onProperty ?property .
           ?restriction owl:maxCardinality|owl:cardinality ?any .
         }
       }
@@ -398,7 +399,7 @@ owl2sh-open:owlMaxQualifiedCardinalityOnClass2shMaxCount
       PREFIX owl: <http://www.w3.org/2002/07/owl#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-      PREFIX owl2sh-open: <http://sparna.fr/ontologies/owl2sh-open#>
+      PREFIX owl2sh-open: <http://data.sparna.fr/ontologies/owl2sh-open#>
 
       CONSTRUCT {
         ?propertyShape sh:maxCount ?maxCount .
@@ -705,7 +706,7 @@ owl2sh-open:owlMaxQualifiedCardinalityOnDataRange2shMaxCount
       PREFIX owl: <http://www.w3.org/2002/07/owl#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-      PREFIX owl2sh-open: <http://sparna.fr/ontologies/owl2sh-open#>
+      PREFIX owl2sh-open: <http://data.sparna.fr/ontologies/owl2sh-open#>
 
       CONSTRUCT {
         ?propertyShape sh:maxCount ?maxCount .
