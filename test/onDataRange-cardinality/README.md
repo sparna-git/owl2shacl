@@ -109,7 +109,7 @@ PASS  owl2sh-semi-closed
 PASS  owl2sh-open
 ```
 
-### Per-flavor expectations, and why they differ
+### Per-flavor expectations
 
 `input.ttl` pairs every data-property case with its object-property sibling:
 
@@ -126,12 +126,12 @@ redundant, the *qualified* rule fires and the simple rule must stay silent. Toge
 the redundant cases above, that pins both guards: a property may never receive a plain and
 a qualified count for the same restriction.
 
-In `closed` and `semi-closed` every pair produces the same counts. In `open`, a
-restriction carrying only `owl:maxQualifiedCardinality` produces no count — and that holds
-for `Road.junction` (`owl:onClass`, pre-existing behaviour) exactly as for
-`Road.speedLimit` (`owl:onDataRange`, added here). The new rules are therefore faithful
-mirrors of their siblings in all three flavors, which is the point of the contribution;
-the `open` flavor's treatment of maximum-only restrictions is pre-existing and unchanged.
+Every pair produces the same counts, in all three flavors. `open` used to give no count for
+a restriction carrying only `owl:maxQualifiedCardinality`, for `Road.junction` and
+`Road.speedLimit` alike: its two `owl:maxQualifiedCardinality` rules declared the
+`owl2sh-open:` prefix as `http://sparna.fr/…` instead of `http://data.sparna.fr/…`, so
+`getPropertyShape` was an unknown function, its `BIND` left `?propertyShape` unbound, and
+the rules constructed nothing. With the prefix fixed, `open` agrees with the other two.
 
 ### A missing guard in `owl2sh-open` and `owl2sh-original`
 

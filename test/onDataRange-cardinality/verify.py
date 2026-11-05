@@ -11,14 +11,11 @@ the SHACL Play! web UI or a Java toolchain::
 
 Exit status is 0 when every checked flavor matches its expectation below, 1 otherwise.
 
-Why the expectations differ per flavor
---------------------------------------
+Every flavor is expected to produce the same counts
+---------------------------------------------------
 The new rules are exact mirrors of the pre-existing ``owl:onClass`` rules, so each one
-fires exactly where its sibling fires. In the ``open`` flavor a restriction carrying only
-``owl:maxQualifiedCardinality`` produces no count at all -- and that is true for the
-*object* property (``Road.junction``, ``owl:onClass``) just as much as for the *data*
-property (``Road.speedLimit``, ``owl:onDataRange``). The fixture contains both so the
-symmetry is visible rather than looking like a gap in the data-property rules.
+fires exactly where its sibling fires: ``Road.junction`` (``owl:onClass``) and
+``Road.speedLimit`` (``owl:onDataRange``) both get ``sh:maxCount 1``, in ``open`` too.
 
 No flavor may emit a plain and a qualified count for the same property: the simple rules
 and the qualified rules are mutually exclusive by construction, each guarded by
@@ -42,9 +39,7 @@ REPO = HERE.parents[1]
 #: restriction -- fails the check instead of passing unnoticed.
 COUNT_CONSTRAINTS = ("minCount", "maxCount", "qualifiedMinCount", "qualifiedMaxCount")
 
-#: Counts each flavor is expected to produce, as (property local name, constraint, value).
-#: "closed" and "semi-closed" constrain optional properties; "open" does not, for object
-#: and data properties alike.
+#: Counts every flavor is expected to produce, as (property local name, constraint, value).
 FULL = {
     # Qualification NOT redundant (onDataRange xsd:int narrower than range xsd:decimal):
     # the qualified rule fires, the simple one must not. Same in every flavor.
@@ -58,12 +53,10 @@ FULL = {
     ("Road.speedLimit", "maxCount", "1"),  # optional data property (owl:onDataRange)
     ("Road.width", "minCount", "1"),  # required data property (owl:onDataRange)
 }
-OPEN = {c for c in FULL if not (c[1] == "maxCount" and c[0] in {"Road.junction", "Road.speedLimit"})}
-
 EXPECTED = {
     "owl2sh-closed": FULL,
     "owl2sh-semi-closed": FULL,
-    "owl2sh-open": OPEN,
+    "owl2sh-open": FULL,
 }
 
 
